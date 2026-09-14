@@ -115,12 +115,16 @@ class V2::Reports::DrilldownBuilder
 
   def bucket_range
     @bucket_range ||= begin
-      bucket_start = Time.zone.at(params[:bucket_timestamp].to_i).in_time_zone(timezone)
-      bucket_end = bucket_end_for(bucket_start)
       requested_start = Time.zone.at(params[:since].to_i)
       requested_end = Time.zone.at(params[:until].to_i)
 
-      [bucket_start, requested_start].max...[bucket_end, requested_end].min
+      if params[:bucket_timestamp].present?
+        bucket_start = Time.zone.at(params[:bucket_timestamp].to_i).in_time_zone(timezone)
+        bucket_end = bucket_end_for(bucket_start)
+        [bucket_start, requested_start].max...[bucket_end, requested_end].min
+      else
+        requested_start...requested_end
+      end
     end
   end
 

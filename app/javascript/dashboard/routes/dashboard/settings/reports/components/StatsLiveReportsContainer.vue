@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { OVERVIEW_METRICS } from '../constants';
 import { useToggle } from '@vueuse/core';
+import { formatTime } from '@chatwoot/utils';
 
 import MetricCard from './overview/MetricCard.vue';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
@@ -36,12 +37,44 @@ const agentStatusMetrics = computed(() => {
   });
   return metric;
 });
+
 const conversationMetrics = computed(() => {
-  let metric = {};
-  Object.keys(accountConversationMetric.value).forEach(key => {
-    const metricName = t(`${accounti18nKey}.${OVERVIEW_METRICS[key]}`);
-    metric[metricName] = accountConversationMetric.value[key];
+  const metric = {};
+  const data = accountConversationMetric.value || {};
+
+  const keys = [
+    'total',
+    'open',
+    'pending',
+    'resolved',
+    'unassigned',
+    'avg_first_response_time',
+    'avg_resolution_time',
+    'csat',
+  ];
+
+  keys.forEach(key => {
+    if (data[key] !== undefined && data[key] !== null) {
+      const metricName = t(`${accounti18nKey}.${OVERVIEW_METRICS[key]}`);
+      if (['avg_first_response_time', 'avg_resolution_time'].includes(key)) {
+        metric[metricName] = data[key] ? formatTime(data[key]) : '--';
+      } else if (key === 'csat') {
+        metric[metricName] = data[key] != null ? `${data[key]}%` : '--';
+      } else {
+        metric[metricName] = data[key]?.toLocaleString() ?? '0';
+      }
+    }
   });
+
+  if (Object.keys(metric).length === 0) {
+    Object.keys(data).forEach(key => {
+      if (OVERVIEW_METRICS[key]) {
+        const metricName = t(`${accounti18nKey}.${OVERVIEW_METRICS[key]}`);
+        metric[metricName] = data[key];
+      }
+    });
+  }
+
   return metric;
 });
 
@@ -79,7 +112,7 @@ onMounted(() => {
 <template>
   <div class="flex flex-col items-center md:flex-row gap-4">
     <div
-      class="flex-1 w-full max-w-full md:w-[65%] md:max-w-[65%] conversation-metric"
+      class="flex-1 w-full max-w-full md:w-[70%] md:max-w-[70%] conversation-metric"
     >
       <MetricCard
         :header="t(`${accounti18nKey}.HEADER`)"
@@ -108,33 +141,37 @@ onMounted(() => {
             />
           </div>
         </template>
-        <div
-          v-for="(metric, name, index) in conversationMetrics"
-          :key="index"
-          class="flex-1 min-w-0 pb-2"
-        >
-          <h3 class="text-base text-n-slate-11">
-            {{ name }}
-          </h3>
-          <p class="text-n-slate-12 text-3xl mb-0 mt-1">
-            {{ metric }}
-          </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+          <div
+            v-for="(metric, name, index) in conversationMetrics"
+            :key="index"
+            class="flex-1 min-w-[100px] pb-2"
+          >
+            <h3 class="text-xs font-medium text-n-slate-11 truncate">
+              {{ name }}
+            </h3>
+            <p class="text-n-slate-12 text-2xl font-semibold mb-0 mt-1">
+              {{ metric }}
+            </p>
+          </div>
         </div>
       </MetricCard>
     </div>
-    <div class="flex-1 w-full max-w-full md:w-[35%] md:max-w-[35%]">
+    <div class="flex-1 w-full max-w-full md:w-[30%] md:max-w-[30%]">
       <MetricCard :header="$t('OVERVIEW_REPORTS.AGENT_STATUS.HEADER')">
-        <div
-          v-for="(metric, name, index) in agentStatusMetrics"
-          :key="index"
-          class="flex-1 min-w-0 pb-2"
-        >
-          <h3 class="text-base text-n-slate-11">
-            {{ name }}
-          </h3>
-          <p class="text-n-slate-12 text-3xl mb-0 mt-1">
-            {{ metric }}
-          </p>
+        <div class="grid grid-cols-3 gap-3 w-full">
+          <div
+            v-for="(metric, name, index) in agentStatusMetrics"
+            :key="index"
+            class="flex-1 min-w-[50px] pb-2"
+          >
+            <h3 class="text-xs font-medium text-n-slate-11 truncate">
+              {{ name }}
+            </h3>
+            <p class="text-n-slate-12 text-2xl font-semibold mb-0 mt-1">
+              {{ metric }}
+            </p>
+          </div>
         </div>
       </MetricCard>
     </div>

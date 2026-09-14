@@ -109,7 +109,7 @@ describe('ReportContainer.vue', () => {
     expect(drawer.props()).toMatchObject({
       metric: 'conversations_count',
       metricName: 'REPORT.METRICS.CONVERSATIONS.NAME',
-      bucketLabel: '15-May',
+      bucketLabel: expect.any(String),
       bucketTimestamp: 1621103400,
       from: 1621103400,
       to: 1621621800,

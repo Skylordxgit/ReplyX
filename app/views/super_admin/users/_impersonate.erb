@@ -1,8 +1,23 @@
-<section class="main-content__body">
- <hr/>
-  <div class="form-actions">
-  <p class="text-color-red">Caution: Any actions executed after impersonate will appear as if performed by the impersonated user - [<%= page.resource.name %> ]</p>
-    <a class='button' target='_blank' href='<%= page.resource.generate_sso_link_with_impersonation %>'>Impersonate user </a>
+<div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mt-6">
+  <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div>
+      <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+        Workspace Impersonation (SSO)
+      </h2>
+      <p class="text-xs text-slate-500 mt-0.5">Generate a single-use secure session token to view workspaces as this user.</p>
+    </div>
+    <span class="px-2 py-0.5 rounded text-xxs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+      Super Admin Access
+    </span>
   </div>
-</section>
 
+  <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg bg-slate-50 border border-slate-100">
+    <div class="text-xs text-slate-600">
+      <strong class="text-slate-900 font-semibold">Security note:</strong> All actions taken during impersonation will appear in workspace audit logs.
+    </div>
+    <a class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-colors flex-shrink-0" target="_blank" href="<%= page.resource.generate_sso_link_with_impersonation %>">
+      <svg width="14" height="14"><use xlink:href="#icon-user-follow-line" /></svg>
+      <span>Impersonate <%= page.resource.name %> &rarr;</span>
+    </a>
+  </div>
+</div>

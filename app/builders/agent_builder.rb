@@ -17,7 +17,18 @@ class AgentBuilder
   # @param inviter [User] the user who is inviting the agent (Current.user in most cases).
   # @param availability [String] the availability status of the user, defaults to 'offline' if not provided.
   # @param auto_offline [Boolean] the auto offline status of the user.
-  pattr_initialize [:email, { name: '' }, :inviter, :account, { role: :agent }, { availability: :offline }, { auto_offline: false }]
+  pattr_initialize [
+    :email,
+    { name: '' },
+    :inviter,
+    :account,
+    { role: :agent },
+    { availability: :offline },
+    { auto_offline: false },
+    { password: nil },
+    { password_confirmation: nil },
+    { force_password_change: nil }
+  ]
 
   # Creates a user and account user in a transaction.
   # @return [User] the created user.
@@ -48,13 +59,33 @@ class AgentBuilder
     user = User.from_email(email)
     return user if user
 
+    build_initial_user
+  end
+
+  def build_initial_user
     @name = email.split('@').first if @name.blank?
-    temp_password = "1!aA#{SecureRandom.alphanumeric(12)}"
-    User.new(email: email, name: @name, password: temp_password, password_confirmation: temp_password).tap do |new_user|
+    raw_password = password.presence || "1!aA#{SecureRandom.alphanumeric(12)}"
+    raw_confirmation = password_confirmation.presence || raw_password
+    forced_change = determine_force_password_change
+
+    User.new(
+      email: email,
+      name: @name,
+      password: raw_password,
+      password_confirmation: raw_confirmation,
+      force_password_change: forced_change
+    ).tap do |new_user|
       new_user.skip_confirmation_notification!
+      new_user.confirmed_at = Time.current if password.present?
       new_user.save!
       @new_user = true
     end
+  end
+
+  def determine_force_password_change
+    return password.present? if force_password_change.nil?
+
+    ActiveModel::Type::Boolean.new.cast(force_password_change)
   end
 
   # Checks if the user needs confirmation.

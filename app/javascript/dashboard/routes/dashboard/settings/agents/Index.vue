@@ -12,6 +12,7 @@ import {
 
 import AddAgent from './AddAgent.vue';
 import EditAgent from './EditAgent.vue';
+import ResetPasswordModal from './ResetPasswordModal.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -24,6 +25,7 @@ const loading = ref({});
 const showAddPopup = ref(false);
 const showDeletePopup = ref(false);
 const showEditPopup = ref(false);
+const showResetPasswordPopup = ref(false);
 const agentAPI = ref({ message: '' });
 const currentAgent = ref({});
 const searchQuery = ref('');
@@ -104,6 +106,37 @@ const showAlertMessage = message => {
   currentAgent.value = {};
   agentAPI.value.message = message;
   useAlert(message);
+};
+
+const openResetPasswordPopup = agent => {
+  currentAgent.value = agent;
+  showResetPasswordPopup.value = true;
+};
+const hideResetPasswordPopup = () => {
+  showResetPasswordPopup.value = false;
+};
+
+const toggleAgentActive = async agent => {
+  try {
+    const newActive = agent.active === false;
+    await store.dispatch('agents/update', {
+      id: agent.id,
+      active: newActive,
+    });
+    useAlert(
+      newActive
+        ? t(
+            'AGENT_MGMT.REACTIVATE.SUCCESS_MESSAGE',
+            'Agent reactivated successfully'
+          )
+        : t(
+            'AGENT_MGMT.DEACTIVATE.SUCCESS_MESSAGE',
+            'Agent deactivated successfully'
+          )
+    );
+  } catch (error) {
+    useAlert(t('AGENT_MGMT.EDIT.API.ERROR_MESSAGE'));
+  }
 };
 
 const openAddPopup = () => {
@@ -196,10 +229,29 @@ const confirmDeletion = () => {
               hide-offline-status
             />
             <div class="flex flex-col gap-1.5 items-start">
-              <span class="block text-heading-3 text-n-slate-12 capitalize">
-                {{ agent.name }}
-              </span>
               <div class="flex items-center gap-2">
+                <span class="block text-heading-3 text-n-slate-12 capitalize">
+                  {{ agent.name }}
+                </span>
+                <span
+                  v-if="agent.active === false"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-n-ruby-2 text-n-ruby-11 border border-n-ruby-4"
+                >
+                  {{ $t('AGENT_MGMT.STATUS.DEACTIVATED', 'Deactivated') }}
+                </span>
+                <span
+                  v-else-if="agent.force_password_change"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-n-amber-2 text-n-amber-11 border border-n-amber-4"
+                >
+                  {{
+                    $t(
+                      'AGENT_MGMT.STATUS.PASSWORD_CHANGE_REQUIRED',
+                      'Password Reset Required'
+                    )
+                  }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-body-main text-n-slate-11">
                   {{ agent.email }}
                 </span>
@@ -253,7 +305,41 @@ const confirmDeletion = () => {
               </div>
             </div>
           </div>
-          <div class="flex justify-end gap-3">
+          <div class="flex justify-end items-center gap-2">
+            <!-- Reset Password Button -->
+            <Button
+              v-if="showEditAction(agent) && agent.provider !== 'saml'"
+              v-tooltip.top="
+                $t('AGENT_MGMT.RESET_PASSWORD.BUTTON_TEXT', 'Reset Password')
+              "
+              icon="i-lucide-key-round"
+              slate
+              sm
+              @click="openResetPasswordPopup(agent)"
+            />
+            <!-- Deactivate / Reactivate Button -->
+            <Button
+              v-if="showEditAction(agent)"
+              v-tooltip.top="
+                agent.active !== false
+                  ? $t('AGENT_MGMT.DEACTIVATE.BUTTON_TEXT', 'Deactivate Agent')
+                  : $t('AGENT_MGMT.REACTIVATE.BUTTON_TEXT', 'Reactivate Agent')
+              "
+              :icon="
+                agent.active !== false
+                  ? 'i-lucide-user-x'
+                  : 'i-lucide-user-check'
+              "
+              slate
+              sm
+              :class="
+                agent.active !== false
+                  ? 'hover:enabled:text-n-amber-11 hover:enabled:bg-n-amber-2'
+                  : 'hover:enabled:text-n-teal-11 hover:enabled:bg-n-teal-2'
+              "
+              @click="toggleAgentActive(agent)"
+            />
+            <!-- Edit Button -->
             <Button
               v-if="showEditAction(agent)"
               v-tooltip.top="$t('AGENT_MGMT.EDIT.BUTTON_TEXT')"
@@ -262,6 +348,7 @@ const confirmDeletion = () => {
               sm
               @click="openEditPopup(agent)"
             />
+            <!-- Delete Button -->
             <Button
               v-if="showDeleteAction(agent)"
               v-tooltip.top="$t('AGENT_MGMT.DELETE.BUTTON_TEXT')"
@@ -281,6 +368,17 @@ const confirmDeletion = () => {
       <AddAgent @close="hideAddPopup" />
     </woot-modal>
 
+    <woot-modal
+      v-model:show="showResetPasswordPopup"
+      :on-close="hideResetPasswordPopup"
+    >
+      <ResetPasswordModal
+        v-if="showResetPasswordPopup"
+        :agent="currentAgent"
+        @close="hideResetPasswordPopup"
+      />
+    </woot-modal>
+
     <woot-modal v-model:show="showEditPopup" :on-close="hideEditPopup">
       <EditAgent
         v-if="showEditPopup"
@@ -291,6 +389,7 @@ const confirmDeletion = () => {
         :email="currentAgent.email"
         :availability="currentAgent.availability_status"
         :custom-role-id="currentAgent.custom_role_id"
+        @open-reset-password="openResetPasswordPopup(currentAgent)"
         @close="hideEditPopup"
       />
     </woot-modal>

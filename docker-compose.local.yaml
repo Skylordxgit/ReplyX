@@ -1,0 +1,30 @@
+# Local overlay: run THIS working tree's Limcx code instead of the stock upstream image.
+#
+# The production compose file runs chatwoot/chatwoot:latest with no source mount,
+# so local Limcx changes are invisible. A bind mount would normally fix this, but
+# macOS TCC blocks Docker Desktop from sharing ~/Downloads, so we bake the source
+# into a local image layer instead (docker builds can still read the directory).
+#
+# Usage:
+#   RAILS_ENV=production NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 npx vite build
+#   git rev-parse HEAD > .git_sha
+#   docker compose -f docker-compose.production.yaml -f docker-compose.local.yaml up -d --build
+
+services:
+  base:
+    build:
+      context: .
+      dockerfile: ./docker/dockerfiles/limcx.local.Dockerfile
+    image: limcx:local
+
+  rails:
+    build:
+      context: .
+      dockerfile: ./docker/dockerfiles/limcx.local.Dockerfile
+    image: limcx:local
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: ./docker/dockerfiles/limcx.local.Dockerfile
+    image: limcx:local

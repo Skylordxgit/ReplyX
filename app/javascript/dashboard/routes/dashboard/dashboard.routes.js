@@ -1,4 +1,5 @@
 import settings from './settings/settings.routes';
+import operationsRoutes from './operations/operations.routes';
 import conversation from './conversation/conversation.routes';
 import { routes as searchRoutes } from '../../modules/search/search.routes';
 import { routes as callRoutes } from './calls/routes';
@@ -14,6 +15,7 @@ import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
 import OnboardingAccountDetails from './onboarding/Index.vue';
 import OnboardingInboxSetup from './onboarding/InboxSetup.vue';
+import ForcePasswordChange from './forcePasswordChange/Index.vue';
 
 export default {
   routes: [
@@ -25,6 +27,7 @@ export default {
         ...inboxRoutes,
         ...conversation.routes,
         ...settings.routes,
+        ...operationsRoutes.routes,
         ...callRoutes,
         ...contactRoutes,
         ...companyRoutes,
@@ -32,6 +35,14 @@ export default {
         ...helpcenterRoutes.routes,
         ...campaignsRoutes.routes,
       ],
+    },
+    {
+      path: frontendURL('accounts/:accountId/change-password'),
+      name: 'force_password_change',
+      meta: {
+        permissions: ['administrator', 'agent', 'custom_role'],
+      },
+      component: ForcePasswordChange,
     },
     {
       path: frontendURL('accounts/:accountId/onboarding'),

@@ -7,7 +7,8 @@ module Enterprise::Audit::AccountUser
       :role,
       :account_id,
       :inviter_id,
-      :user_id
+      :user_id,
+      :active
     ], on: [:create, :update], associated_with: :account
   end
 end

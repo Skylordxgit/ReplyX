@@ -1,152 +1,173 @@
-# TODO: Move this values to features.yml itself
-# No need to replicate the same values in two places
+# Limcx Super Admin Features Catalog
 
-# ------- Premium Features ------- #
-saml:
-  name: 'SAML SSO'
-  description: 'Configuration for controlling SAML Single Sign-On availability'
-  enabled: <%= ChatwootApp.enterprise? %>
-  icon: 'icon-lock-line'
-  config_key: 'saml'
-  enterprise: true
+# ------- Platform Operations & Security ------- #
 custom_branding:
   name: 'Custom Branding'
-  description: 'Apply your own branding to this installation.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
+  description: 'Manage white-labeling, brand names, logos and custom URLs for Limcx.'
+  enabled: true
   icon: 'icon-paint-brush-line'
-  config_key: 'custom_branding'
-  enterprise: true
-agent_capacity:
-  name: 'Agent Capacity'
-  description: 'Set limits to auto-assigning conversations to your agents.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
-  icon: 'icon-hourglass-line'
-  enterprise: true
+  config_key: 'general'
+  category: 'Platform'
+
+custom_roles:
+  name: 'Custom Roles & Permissions'
+  description: 'Role-based access control with granular platform and workspace permission policies.'
+  enabled: true
+  icon: 'icon-user-follow-line'
+  category: 'Security'
+
 audit_logs:
   name: 'Audit Logs'
-  description: 'Track and trace account activities with ease with detailed audit logs.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
-  icon: 'icon-menu-search-line'
-  enterprise: true
-disable_branding:
-  name: 'Disable Branding'
-  description: 'Disable branding on live-chat widget and external emails.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
-  icon: 'icon-sailbot-fill'
-  enterprise: true
-voice_calls:
-  name: 'Voice Calls'
-  description: 'Enable voice calling capabilities for your agents and customers.'
-  enabled: <%= (ChatwootHub.pricing_plan != 'community') %>
-  icon: 'icon-voice-line'
-  enterprise: true
-
-# ------- Product Features ------- #
-help_center:
-  name: 'Help Center'
-  description: 'Allow agents to create help center articles and publish them in a portal.'
+  description: 'Track and trace workspace and user security events with immutable audit logs.'
   enabled: true
-  icon: 'icon-book-2-line'
+  icon: 'icon-menu-search-line'
+  category: 'Security'
+
+sla:
+  name: 'Service Level Targets (SLA)'
+  description: 'Define service level agreements, first response times, and resolution targets.'
+  enabled: true
+  icon: 'icon-hourglass-line'
+  category: 'Operations'
+
+agent_capacity:
+  name: 'Agent Workload & Capacity'
+  description: 'Automated queue routing, capacity limits, and real-time agent availability tracking.'
+  enabled: true
+  icon: 'icon-dashboard-line'
+  category: 'Operations'
+
+# ------- AI & Intelligence ------- #
 captain:
-  name: 'Captain'
-  description: 'Enable AI-powered conversations with your customers.'
+  name: 'AI & Captain LLM Engine'
+  description: 'Multi-provider AI intelligence with OpenAI, Anthropic Claude, and Google Gemini.'
   enabled: true
   icon: 'icon-captain'
   config_key: 'captain'
+  category: 'AI'
 
 # ------- Communication Channels ------- #
 live_chat:
-  name: 'Live Chat'
-  description: 'Improve your customer experience using a live chat on your website.'
+  name: 'Live Chat Widget'
+  description: 'Real-time embeddable live chat widget with customization and audio notes.'
   enabled: true
   icon: 'icon-chat-smile-3-line'
+  category: 'Channels'
+
 email:
-  name: 'Email'
-  description: 'Manage your email customer interactions from Chatwoot.'
+  name: 'Email Inbound & Outbound'
+  description: 'Manage two-way customer email conversations via SMTP, IMAP, and Mailgun/SendGrid.'
   enabled: true
   icon: 'icon-mail-send-fill'
   config_key: 'email'
-sms:
-  name: 'SMS'
-  description: 'Manage your SMS customer interactions from Chatwoot.'
-  enabled: true
-  icon: 'icon-message-line'
-messenger:
-  name: 'Messenger'
-  description: 'Stay connected with your customers on Facebook & Instagram.'
-  enabled: true
-  icon: 'icon-messenger-line'
-  config_key: 'facebook'
-instagram:
-  name: 'Instagram'
-  description: 'Stay connected with your customers on Instagram'
-  enabled: true
-  icon: 'icon-instagram'
-  config_key: 'instagram'
-tiktok:
-  name: 'TikTok'
-  description: 'Stay connected with your customers on TikTok'
-  enabled: true
-  icon: 'icon-tiktok'
-  config_key: 'tiktok'
+  category: 'Channels'
+
 whatsapp:
-  name: 'WhatsApp'
-  description: 'Manage your WhatsApp business interactions from Chatwoot.'
-  enabled: true
-  icon: 'icon-whatsapp-line'
-telegram:
-  name: 'Telegram'
-  description: 'Manage your Telegram customer interactions from Chatwoot.'
-  enabled: true
-  icon: 'icon-telegram-line'
-line:
-  name: 'Line'
-  description: 'Manage your Line customer interactions from Chatwoot.'
-  enabled: true
-  icon: 'icon-line-line'
-
-# ------- OAuth & Authentication ------- #
-google:
-  name: 'Google'
-  description: 'Configuration for setting up Google OAuth Integration'
-  enabled: true
-  icon: 'icon-google'
-  config_key: 'google'
-microsoft:
-  name: 'Microsoft'
-  description: 'Configuration for setting up Microsoft Email'
-  enabled: true
-  icon: 'icon-microsoft'
-  config_key: 'microsoft'
-
-# ------- Third-party Integrations ------- #
-linear:
-  name: 'Linear'
-  description: 'Configuration for setting up Linear Integration'
-  enabled: true
-  icon: 'icon-linear'
-  config_key: 'linear'
-notion:
-  name: 'Notion'
-  description: 'Configuration for setting up Notion Integration'
-  enabled: true
-  icon: 'icon-notion'
-  config_key: 'notion'
-slack:
-  name: 'Slack'
-  description: 'Configuration for setting up Slack Integration'
-  enabled: true
-  icon: 'icon-slack'
-  config_key: 'slack'
-whatsapp_embedded:
-  name: 'WhatsApp Embedded'
-  description: 'Configuration for setting up WhatsApp Embedded Integration'
+  name: 'WhatsApp Business'
+  description: 'Direct WhatsApp Cloud API and Embedded Onboarding connectivity.'
   enabled: true
   icon: 'icon-whatsapp-line'
   config_key: 'whatsapp_embedded'
+  category: 'Channels'
+
+instagram:
+  name: 'Instagram Direct'
+  description: 'Engage with customers directly through Instagram messaging and story replies.'
+  enabled: true
+  icon: 'icon-instagram'
+  config_key: 'instagram'
+  category: 'Channels'
+
+messenger:
+  name: 'Facebook Messenger'
+  description: 'Connect Facebook Pages and Messenger channels to unified inboxes.'
+  enabled: true
+  icon: 'icon-messenger-line'
+  config_key: 'facebook'
+  category: 'Channels'
+
+tiktok:
+  name: 'TikTok Direct'
+  description: 'Manage TikTok customer interactions and direct messages.'
+  enabled: true
+  icon: 'icon-tiktok'
+  config_key: 'tiktok'
+  category: 'Channels'
+
+telegram:
+  name: 'Telegram Bots'
+  description: 'Receive and reply to customer inquiries over Telegram bot integrations.'
+  enabled: true
+  icon: 'icon-telegram-line'
+  category: 'Channels'
+
+line:
+  name: 'Line Messaging'
+  description: 'Connect Line Official Accounts for customer service.'
+  enabled: true
+  icon: 'icon-line-line'
+  category: 'Channels'
+
+sms:
+  name: 'SMS & Twilio'
+  description: 'Send and receive standard SMS messages via Twilio, Bandwidth, and 360Dialog.'
+  enabled: true
+  icon: 'icon-message-line'
+  category: 'Channels'
+
+# ------- OAuth & SSO Integrations ------- #
+google:
+  name: 'Google Workspace & OAuth'
+  description: 'Single Sign-On and email channel connectivity via Google OAuth2.'
+  enabled: true
+  icon: 'icon-google'
+  config_key: 'google'
+  category: 'Integrations'
+
+microsoft:
+  name: 'Microsoft 365 & Azure SSO'
+  description: 'Single Sign-On and Outlook / Office 365 email channel connectivity.'
+  enabled: true
+  icon: 'icon-microsoft'
+  config_key: 'microsoft'
+  category: 'Integrations'
+
+# ------- Productivity & CRM Integrations ------- #
+slack:
+  name: 'Slack Sync'
+  description: 'Mirror inbox conversations into Slack channels for cross-team collaboration.'
+  enabled: true
+  icon: 'icon-slack'
+  config_key: 'slack'
+  category: 'Integrations'
+
+linear:
+  name: 'Linear Issues'
+  description: 'Create and link Linear engineering issues directly from customer tickets.'
+  enabled: true
+  icon: 'icon-linear'
+  config_key: 'linear'
+  category: 'Integrations'
+
+notion:
+  name: 'Notion Database'
+  description: 'Connect Notion knowledge pages and contact sync.'
+  enabled: true
+  icon: 'icon-notion'
+  config_key: 'notion'
+  category: 'Integrations'
+
 shopify:
-  name: 'Shopify'
-  description: 'Configuration for setting up Shopify Integration'
+  name: 'Shopify Store'
+  description: 'Fetch customer orders and e-commerce context alongside live conversations.'
   enabled: true
   icon: 'icon-shopify'
   config_key: 'shopify'
+  category: 'Integrations'
+
+help_center:
+  name: 'Help Center & Portals'
+  description: 'Multi-lingual public help center portals and self-service documentation.'
+  enabled: true
+  icon: 'icon-book-2-line'
+  category: 'Platform'

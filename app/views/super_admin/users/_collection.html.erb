@@ -1,21 +1,8 @@
 <%#
-# Collection
-
-This partial is used on the `index` and `show` pages
-to display a collection of resources in an HTML table.
-
-## Local variables:
-
-- `collection_presenter`:
-  An instance of [Administrate::Page::Collection][1].
-  The table presenter uses `ResourceDashboard::COLLECTION_ATTRIBUTES` to determine
-  the columns displayed in the table
-- `resources`:
-  An ActiveModel::Relation collection of resources to be displayed in the table.
-  By default, the number of resources is limited by pagination
-  or by a hard limit to prevent excessive page load times
-
-[1]: http://www.rubydoc.info/gems/administrate/Administrate/Page/Collection
+# Users Collection Partial
+#
+# This partial is used on the `index` and `show` pages
+# to display a collection of users in an HTML table.
 %>
 
 <table aria-labelledby="<%= table_title %>">
@@ -28,9 +15,16 @@ to display a collection of resources in an HTML table.
         scope="col"
         role="columnheader"
         aria-sort="<%= sort_order(collection_presenter.ordered_html_class(attr_name)) %>">
-        <%= link_to(sanitized_order_params(page, collection_field_name).merge(
-          collection_presenter.order_params_for(attr_name, key: collection_field_name)
-        )) do %>
+        <% 
+          order_url = begin
+            sanitized = sanitized_order_params(page, collection_field_name)
+            order_p = collection_presenter.order_params_for(attr_name, key: collection_field_name)
+            url_for(sanitized.merge(order_p).merge(only_path: true))
+          rescue StandardError
+            "#{request.path}?#{collection_presenter.order_params_for(attr_name, key: collection_field_name).to_query}" rescue request.path
+          end
+        %>
+        <%= link_to(order_url) do %>
         <%= t(
           "helpers.label.#{collection_presenter.resource_name}.#{attr_name}",
           default: attr_name.to_s,

@@ -60,6 +60,7 @@ Rails.application.routes.draw do
           end
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
+            post :reset_password, on: :member
           end
           namespace :captain do
             resource :preferences, only: [:show, :update]

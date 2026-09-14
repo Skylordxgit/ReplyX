@@ -7,24 +7,40 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def create
-    builder = AgentBuilder.new(
-      email: new_agent_params['email'],
-      name: new_agent_params['name'],
-      role: new_agent_params['role'],
-      availability: new_agent_params['availability'],
-      auto_offline: new_agent_params['auto_offline'],
-      inviter: current_user,
-      account: Current.account
-    )
-
+    builder = AgentBuilder.new(**agent_builder_params)
     @agent = builder.perform
   rescue AgentBuilder::LimitExceededError => e
     render_payment_required(e.message)
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.join(', ') }, status: :unprocessable_entity
   end
 
   def update
     @agent.update!(agent_params.slice(:name).compact)
     @agent.current_account_user.update!(agent_params.slice(*account_user_attributes).compact)
+  end
+
+  def reset_password
+    if reset_password_params[:password].blank?
+      render json: { error: I18n.t('errors.agents.password_required', default: 'Password is required') }, status: :unprocessable_entity
+      return
+    end
+
+    forced = if reset_password_params.key?(:force_password_change)
+               ActiveModel::Type::Boolean.new.cast(reset_password_params[:force_password_change])
+             else
+               true
+             end
+
+    @agent.admin_reset_password!(
+      password: reset_password_params[:password],
+      password_confirmation: reset_password_params[:password_confirmation] || reset_password_params[:password],
+      force_password_change: forced,
+      account: Current.account,
+      actor: current_user
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.join(', ') }, status: :unprocessable_entity
   end
 
   def destroy
@@ -56,11 +72,11 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def account_user_attributes
-    [:role, :availability, :auto_offline]
+    [:role, :availability, :auto_offline, :active]
   end
 
   def allowed_agent_params
-    [:name, :email, :role, :availability, :auto_offline]
+    [:name, :email, :role, :availability, :auto_offline, :active]
   end
 
   def agent_params
@@ -68,7 +84,20 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def new_agent_params
-    params.require(:agent).permit(:email, :name, :role, :availability, :auto_offline)
+    params.require(:agent).permit(:email, :name, :role, :availability, :auto_offline, :password, :password_confirmation, :force_password_change)
+  end
+
+  def reset_password_params
+    params.require(:agent).permit(:password, :password_confirmation, :force_password_change)
+  rescue ActionController::ParameterMissing
+    params.permit(:password, :password_confirmation, :force_password_change)
+  end
+
+  def agent_builder_params
+    new_agent_params.to_h.symbolize_keys.merge(
+      inviter: current_user,
+      account: Current.account
+    )
   end
 
   def agents

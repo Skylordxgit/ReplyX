@@ -33,6 +33,20 @@ export const validateAuthenticateRoutePermission = async (to, next) => {
   }
 
   const routeAccountId = Number(to.params?.accountId || accountId);
+
+  // If the user must change their temporary password, strictly block access to any other route
+  if (user.force_password_change) {
+    if (to.name === 'force_password_change') {
+      return next();
+    }
+    return next(frontendURL(`accounts/${routeAccountId}/change-password`));
+  }
+
+  // If user does not need to change password but tries to visit the change password page, redirect to dashboard
+  if (to.name === 'force_password_change') {
+    return next(frontendURL(`accounts/${routeAccountId}/dashboard`));
+  }
+
   const userAccount = accounts.find(a => a.id === routeAccountId);
   const isAdmin = userAccount?.role === 'administrator';
   const isActive = userAccount?.status === 'active';

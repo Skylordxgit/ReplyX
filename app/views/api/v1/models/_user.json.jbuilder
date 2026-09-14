@@ -9,6 +9,7 @@ json.account_id active_account_user&.account_id
 json.available_name resource.available_name
 json.avatar_url resource.avatar_url
 json.confirmed resource.confirmed?
+json.force_password_change resource.force_password_change?
 json.display_name resource.display_name
 json.message_signature resource.message_signature
 json.email resource.email
@@ -30,6 +31,7 @@ json.accounts do
     json.status account_user.account.status
     json.onboarding_step account_user.account.onboarding_step
     json.active_at account_user.active_at
+    json.active account_user.active
     json.role account_user.role
     json.permissions account_user.permissions
     # the actual availability user has configured

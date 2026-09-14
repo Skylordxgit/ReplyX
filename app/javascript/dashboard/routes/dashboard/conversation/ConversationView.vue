@@ -195,7 +195,9 @@ export default {
 </script>
 
 <template>
-  <section class="flex w-full h-full min-w-0">
+  <section
+    class="flex w-full h-full min-w-0 p-2 sm:p-3 gap-2 sm:gap-3 overflow-hidden bg-slate-950"
+  >
     <ChatList
       :show-conversation-list="showConversationList"
       :conversation-inbox="inboxId"
@@ -210,6 +212,7 @@ export default {
       v-if="showMessageView"
       :inbox-id="inboxId"
       :is-on-expanded-layout="isOnExpandedLayout"
+      class="rounded-lg border border-slate-800/60 bg-slate-900 flex-1 min-w-0 overflow-hidden"
     >
       <SidepanelSwitch v-if="currentChat.id" />
     </ConversationBox>

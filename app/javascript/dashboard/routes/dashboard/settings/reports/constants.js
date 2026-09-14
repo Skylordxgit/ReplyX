@@ -77,10 +77,15 @@ export const DATE_RANGE_OPTIONS = {
 };
 
 export const OVERVIEW_METRICS = {
+  total: 'TOTAL',
   open: 'OPEN',
-  unattended: 'UNATTENDED',
-  unassigned: 'UNASSIGNED',
   pending: 'PENDING',
+  resolved: 'RESOLVED',
+  unassigned: 'UNASSIGNED',
+  unattended: 'UNATTENDED',
+  avg_first_response_time: 'AVG_FIRST_RESPONSE_TIME',
+  avg_resolution_time: 'AVG_RESOLUTION_TIME',
+  csat: 'CSAT',
   online: 'ONLINE',
   busy: 'BUSY',
   offline: 'OFFLINE',

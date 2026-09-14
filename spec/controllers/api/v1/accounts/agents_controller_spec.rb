@@ -178,6 +178,28 @@ RSpec.describe 'Agents API', type: :request do
         expect(account.users.last.name).to eq('NewUser')
       end
 
+      it 'creates a new agent with a manual temporary password and force_password_change' do
+        manual_params = {
+          name: 'ManualPasswordAgent',
+          email: 'manual_password@example.com',
+          role: :agent,
+          password: 'TempPassword123!',
+          password_confirmation: 'TempPassword123!',
+          force_password_change: true
+        }
+
+        post "/api/v1/accounts/#{account.id}/agents",
+             params: manual_params,
+             headers: admin.create_new_auth_token,
+             as: :json
+
+        expect(response).to have_http_status(:success)
+        created_user = User.from_email('manual_password@example.com')
+        expect(created_user.valid_password?('TempPassword123!')).to be(true)
+        expect(created_user.force_password_change?).to be(true)
+        expect(created_user.confirmed?).to be(true)
+      end
+
       context 'when the account email limit is exhausted' do
         before do
           allow(ChatwootApp).to receive(:chatwoot_cloud?).and_return(true)
@@ -292,6 +314,105 @@ RSpec.describe 'Agents API', type: :request do
           expect(account.emails_sent_today).to eq(1)
         end
       end
+    end
+  end
+
+  describe 'POST /api/v1/accounts/{account.id}/agents/:id/reset_password' do
+    let(:target_agent) { create(:user, account: account, role: :agent) }
+
+    context 'when unauthenticated' do
+      it 'returns unauthorized' do
+        post "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}/reset_password",
+             params: { password: 'NewSecure123!Password', password_confirmation: 'NewSecure123!Password' }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when authenticated as non-admin agent' do
+      it 'returns unauthorized' do
+        post "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}/reset_password",
+             params: { password: 'NewSecure123!Password', password_confirmation: 'NewSecure123!Password' },
+             headers: agent.create_new_auth_token,
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when authenticated as admin' do
+      it 'resets the password, sets force_password_change to true, and invalidates sessions' do
+        old_auth_headers = target_agent.create_new_auth_token
+        target_agent.user_sessions.create!(client_id: 'client_123', ip_address: '127.0.0.1')
+
+        post "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}/reset_password",
+             params: {
+               password: 'NewTemp123!Password',
+               password_confirmation: 'NewTemp123!Password',
+               force_password_change: true
+             },
+             headers: admin.create_new_auth_token,
+             as: :json
+
+        expect(response).to have_http_status(:success)
+        expect(target_agent.reload.valid_password?('NewTemp123!Password')).to be(true)
+        expect(target_agent.force_password_change?).to be(true)
+        expect(target_agent.user_sessions.count).to eq(0)
+        expect(target_agent.tokens).to be_empty
+
+        # Previous session token should no longer be valid
+        get "/api/v1/accounts/#{account.id}/agents", headers: old_auth_headers, as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns error if password does not meet requirements' do
+        post "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}/reset_password",
+             params: { password: 'weak', password_confirmation: 'weak' },
+             headers: admin.create_new_auth_token,
+             as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe 'PUT /api/v1/accounts/{account.id}/agents/:id active status' do
+    let(:target_agent) { create(:user, account: account, role: :agent) }
+
+    it 'allows admin to deactivate and reactivate an agent' do
+      # Deactivate
+      put "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}",
+          params: { active: false },
+          headers: admin.create_new_auth_token,
+          as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(target_agent.account_users.first.active).to be(false)
+
+      # Deactivated agent gets unauthorized when trying to access account
+      get "/api/v1/accounts/#{account.id}/agents",
+          headers: target_agent.create_new_auth_token,
+          as: :json
+      expect(response).to have_http_status(:unauthorized)
+
+      # Reactivate
+      put "/api/v1/accounts/#{account.id}/agents/#{target_agent.id}",
+          params: { active: true },
+          headers: admin.create_new_auth_token,
+          as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(target_agent.account_users.first.active).to be(true)
+    end
+
+    it 'prevents deactivating the last administrator of the account' do
+      put "/api/v1/accounts/#{account.id}/agents/#{admin.id}",
+          params: { active: false },
+          headers: admin.create_new_auth_token,
+          as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(admin.account_users.first.reload.active).to be(true)
     end
   end
 end

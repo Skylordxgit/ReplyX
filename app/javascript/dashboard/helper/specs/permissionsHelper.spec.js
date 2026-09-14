@@ -3,7 +3,49 @@ import {
   getUserPermissions,
   hasPermissions,
   filterItemsByPermission,
+  isMasterAdmin,
+  isWorkspaceAdmin,
+  isTeamLead,
+  isAgent,
 } from '../permissionsHelper';
+
+describe('Role and Master Admin Helpers', () => {
+  it('identifies master admin based on user type', () => {
+    expect(isMasterAdmin({ type: 'SuperAdmin' })).toBe(true);
+    expect(isMasterAdmin({ type: 'User' })).toBe(false);
+    expect(isMasterAdmin(null)).toBe(false);
+  });
+
+  it('identifies workspace admin and agent accurately', () => {
+    const adminUser = {
+      type: 'User',
+      accounts: [{ id: 1, role: 'administrator' }],
+    };
+    const agentUser = {
+      type: 'User',
+      accounts: [{ id: 1, role: 'agent' }],
+    };
+    const masterAdminUser = {
+      type: 'SuperAdmin',
+      accounts: [{ id: 1, role: 'agent' }],
+    };
+
+    expect(isWorkspaceAdmin(adminUser, 1)).toBe(true);
+    expect(isWorkspaceAdmin(agentUser, 1)).toBe(false);
+    expect(isWorkspaceAdmin(masterAdminUser, 1)).toBe(true);
+
+    expect(isAgent(agentUser, 1)).toBe(true);
+    expect(isAgent(adminUser, 1)).toBe(false);
+  });
+
+  it('identifies custom role / team lead correctly', () => {
+    const customUser = {
+      type: 'User',
+      accounts: [{ id: 1, custom_role_id: 12 }],
+    };
+    expect(isTeamLead(customUser, 1)).toBe(true);
+  });
+});
 
 describe('#getCurrentAccount', () => {
   it('should return the current account', () => {

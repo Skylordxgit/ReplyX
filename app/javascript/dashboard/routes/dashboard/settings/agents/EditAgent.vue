@@ -6,7 +6,6 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import Button from 'dashboard/components-next/button/Button.vue';
-import Auth from '../../../../api/auth';
 import wootConstants from 'dashboard/constants/globals';
 
 const props = defineProps({
@@ -40,7 +39,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'openResetPassword']);
 
 const { AVAILABILITY_STATUS_KEYS } = wootConstants;
 
@@ -50,7 +49,6 @@ const { t } = useI18n();
 const agentName = ref(props.name);
 const agentAvailability = ref(props.availability);
 const selectedRoleId = ref(props.customRoleId || props.type);
-const agentCredentials = ref({ email: props.email });
 
 const rules = {
   agentName: { required, minLength: minLength(1) },
@@ -143,20 +141,29 @@ const editAgent = async () => {
   }
 };
 
-const resetPassword = async () => {
-  try {
-    await Auth.resetPassword(agentCredentials.value);
-    useAlert(t('AGENT_MGMT.EDIT.PASSWORD_RESET.ADMIN_SUCCESS_MESSAGE'));
-  } catch (error) {
-    useAlert(t('AGENT_MGMT.EDIT.PASSWORD_RESET.ERROR_MESSAGE'));
-  }
+const handleResetPasswordClick = () => {
+  emit('openResetPassword');
+  emit('close');
 };
 </script>
 
 <template>
   <div class="flex flex-col h-auto overflow-auto">
     <woot-modal-header :header-title="pageTitle" />
-    <form class="w-full" @submit.prevent="editAgent">
+    <form class="w-full space-y-3" @submit.prevent="editAgent">
+      <div v-if="email" class="w-full">
+        <label
+          class="block mb-1 text-xs font-semibold uppercase tracking-wider text-n-slate-11"
+        >
+          {{ $t('AGENT_MGMT.EDIT.FORM.EMAIL.LABEL', 'Email Address') }}
+        </label>
+        <input
+          :value="email"
+          type="email"
+          disabled
+          class="w-full rounded-md border border-n-weak bg-n-alpha-1 px-3 py-2 text-sm text-n-slate-10 opacity-70 cursor-not-allowed dark:bg-n-solid-3"
+        />
+      </div>
       <div class="w-full">
         <label :class="{ error: v$.agentName.$error }">
           {{ $t('AGENT_MGMT.EDIT.FORM.NAME.LABEL') }}
@@ -210,10 +217,10 @@ const resetPassword = async () => {
             v-if="provider !== 'saml'"
             ghost
             type="button"
-            icon="i-lucide-lock-keyhole"
+            icon="i-lucide-key-round"
             class="!px-2"
             :label="$t('AGENT_MGMT.EDIT.PASSWORD_RESET.ADMIN_RESET_BUTTON')"
-            @click.prevent="resetPassword"
+            @click.prevent="handleResetPasswordClick"
           />
         </div>
         <div class="w-[50%] flex justify-end items-center gap-2">

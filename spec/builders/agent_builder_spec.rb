@@ -105,6 +105,59 @@ RSpec.describe AgentBuilder, type: :model do
       end
     end
 
+    context 'when an admin provides a custom temporary password' do
+      let(:temp_password) { 'Valid123!Pass' }
+      let(:params) do
+        {
+          email: email,
+          name: name,
+          inviter: current_user,
+          account: account,
+          password: temp_password,
+          password_confirmation: temp_password,
+          force_password_change: true
+        }
+      end
+
+      before { clear_enqueued_jobs }
+
+      it 'creates the user with the given password, confirms them, and sets force_password_change' do
+        user = agent_builder.perform
+
+        expect(user.valid_password?(temp_password)).to be(true)
+        expect(user.force_password_change?).to be(true)
+        expect(user.confirmed?).to be(true)
+      end
+
+      it 'does not enqueue confirmation instructions email' do
+        agent_builder.perform
+
+        expect(enqueued_jobs.select { |j| j[:job].to_s == 'ActionMailer::MailDeliveryJob' }).to be_empty
+      end
+    end
+
+    context 'when an admin provides a password with force_password_change as false' do
+      let(:temp_password) { 'Valid123!Pass' }
+      let(:params) do
+        {
+          email: email,
+          name: name,
+          inviter: current_user,
+          account: account,
+          password: temp_password,
+          password_confirmation: temp_password,
+          force_password_change: false
+        }
+      end
+
+      it 'creates the user with force_password_change as false' do
+        user = agent_builder.perform
+
+        expect(user.force_password_change?).to be(false)
+        expect(user.confirmed?).to be(true)
+      end
+    end
+
     context 'when the account has reached its agent limit' do
       before do
         allow(account).to receive(:usage_limits).and_return({ agents: account.account_users.count })

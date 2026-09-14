@@ -109,11 +109,11 @@ watch(
 
 <template>
   <div
-    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 cursor-pointer conversation border-b border-n-slate-3 hover:border-n-surface-1 hover:bg-n-alpha-1 dark:hover:bg-n-alpha-3 group hover:z-[1] before:content-[none] before:absolute before:-top-px before:inset-x-0 before:h-px before:bg-n-surface-1 before:pointer-events-none hover:before:content-['']"
+    class="relative flex items-start flex-grow-0 flex-shrink-0 w-auto max-w-full py-0 cursor-pointer conversation border-b border-slate-800/60 group hover:z-[1] hover:bg-white/[0.04] transition-colors"
     :class="{
-      'active animate-card-select bg-n-background !border-n-surface-1':
+      'active animate-card-select bg-blue-600/15 !border-blue-500/30':
         isActiveChat,
-      'selected bg-n-slate-2 !border-n-surface-1': selected,
+      'selected bg-blue-500/10': selected,
       'px-0': compact,
       'px-3': !compact,
     }"
@@ -204,10 +204,8 @@ watch(
         class="text-n-slate-11 text-sm my-0 mx-2 leading-6 h-6 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
         :class="messagePreviewClass"
       >
-        <fluent-icon
-          size="16"
-          class="-mt-0.5 align-middle inline-block text-n-slate-10"
-          icon="info"
+        <span
+          class="i-lucide-info size-4 -mt-0.5 align-middle inline-block text-n-slate-10"
         />
         <span class="mx-0.5">
           {{ $t(`CHAT_LIST.NO_MESSAGES`) }}

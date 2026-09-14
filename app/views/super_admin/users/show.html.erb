@@ -1,76 +1,104 @@
 <%#
-# Show
-
-This view is the template for the show page.
-It renders the attributes of a resource,
-as well as a link to its edit page.
-
-## Local variables:
-
-- `page`:
-  An instance of [Administrate::Page::Show][1].
-  Contains methods for accessing the resource to be displayed on the page,
-  as well as helpers for describing how each attribute of the resource
-  should be displayed.
-
-[1]: http://www.rubydoc.info/gems/administrate/Administrate/Page/Show
+# Limcx User Show View
 %>
 
-<% content_for(:title) { t("administrate.actions.show_resource", name: page.page_title) } %>
+<% content_for(:title) { page.page_title } %>
 
-<header class="main-content__header" role="banner">
-  <h1 class="main-content__page-title">
-    <%= content_for(:title) %>
-  </h1>
+<header class="flex px-8 py-5 items-center justify-between border-b border-slate-200 bg-white" role="banner">
+  <div class="flex items-center">
+    <div class="border border-slate-200 mr-4 p-2.5 rounded-xl bg-slate-50 text-slate-700">
+      <svg width="22" height="22"><use xlink:href="#icon-user-follow-line" /></svg>
+    </div>
+    <div class="flex flex-col justify-center">
+      <div class="flex items-center gap-2">
+        <h1 class="text-lg font-bold leading-6 text-slate-900" id="page-title">
+          <%= page.page_title %>
+        </h1>
+        <% if page.resource.type == 'SuperAdmin' %>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200/60">
+            SuperAdmin
+          </span>
+        <% else %>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            Platform User
+          </span>
+        <% end %>
+
+        <% if page.resource.confirmed? %>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+            Confirmed
+          </span>
+        <% else %>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+            Pending Confirmation
+          </span>
+        <% end %>
+      </div>
+      <p class="text-xs font-normal text-slate-500 m-0">User ID #<%= page.resource.id %> • <%= page.resource.email %> • Created <%= page.resource.created_at.strftime("%b %d, %Y") %></p>
+    </div>
+  </div>
 
   <div class="flex items-center gap-2">
-    <%= link_to(
-            t("administrate.actions.edit"),
-            [:edit, namespace,  page.resource.becomes(User)],
-            class: "button",
-          ) if authorized_action? page.resource, :edit %>
-    <%= button_to(
-            t("super_admin.users.resend_confirmation.button"),
-            [:resend_confirmation, namespace, page.resource.becomes(User)],
-            method: :post,
-            class: "button",
-            form_class: "button_to contents",
-          ) unless page.resource.confirmed? %>
+    <%= link_to([:edit, namespace, page.resource.becomes(User)], class: "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold shadow-sm transition-colors") do %>
+      <svg width="14" height="14"><use xlink:href="#icon-edit-line" /></svg>
+      <span>Edit User</span>
+    <% end if authorized_action? page.resource, :edit %>
+
+    <%= button_to([:resend_confirmation, namespace, page.resource.becomes(User)], method: :post, class: "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors", form_class: "button_to contents") do %>
+      <svg width="14" height="14"><use xlink:href="#icon-mail-send-fill" /></svg>
+      <span>Resend Confirmation</span>
+    <% end unless page.resource.confirmed? %>
   </div>
 </header>
 
-<section class="main-content__body">
-  <dl>
-    <% page.attributes.each do |title, attributes| %>
-      <fieldset class="<%= "field-unit--nested" if title.present? %>">
-        <% if title.present? %>
-          <legend><%= t "helpers.label.#{page.resource_name}.#{title}", default: title %></legend>
-        <% end %>
+<section class="main-content__body px-8 py-6 space-y-6 bg-slate-50/50 min-h-screen">
+  <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">
+      User Account Profile & Security
+    </h2>
 
-        <% attributes.each do |attribute| %>
-          <dt class="attribute-label" id="<%= attribute.name %>">
-          <%= t(
-            "helpers.label.#{resource_name}.#{attribute.name}",
-            default: page.resource.class.human_attribute_name(attribute.name),
-          ) %>
-          </dt>
+    <div class="space-y-4">
+      <% page.attributes.each do |title, attributes| %>
+        <fieldset class="<%= "field-unit--nested" if title.present? %>">
+          <% if title.present? %>
+            <legend class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3"><%= t "helpers.label.#{page.resource_name}.#{title}", default: title %></legend>
+          <% end %>
 
-          <dd class="attribute-data attribute-data--<%=attribute.html_class%>"
-              ><%= render_field attribute, page: page %></dd>
-        <% end %>
-      </fieldset>
-    <% end %>
+          <% attributes.each do |attribute| %>
+            <div class="grid grid-cols-1 md:grid-cols-4 py-2 border-b border-slate-50 items-center">
+              <div class="text-xs font-medium text-slate-500" id="<%= attribute.name %>">
+                <%= t(
+                  "helpers.label.#{resource_name}.#{attribute.name}",
+                  default: page.resource.class.human_attribute_name(attribute.name),
+                ) %>
+              </div>
 
-    <dt class="attribute-label" id="mfa_enabled">MFA</dt>
-    <dd class="attribute-data attribute-data--string">
-      <% mfa_enabled = page.resource.mfa_enabled? %>
-      <span class="<%= mfa_enabled ? 'bg-green-100/70 text-green-800' : 'bg-slate-100 text-slate-700' %> inline-flex items-center px-2 h-4 leading-4 rounded-xl text-xxs font-medium">
-        <%= mfa_enabled ? 'Enabled' : 'Disabled' %>
-      </span>
-    </dd>
-  </dl>
+              <div class="md:col-span-3 text-xs font-semibold text-slate-900 attribute-data attribute-data--<%=attribute.html_class%>">
+                <%= render_field attribute, page: page %>
+              </div>
+            </div>
+          <% end %>
+        </fieldset>
+      <% end %>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 py-2 border-b border-slate-50 items-center">
+        <div class="text-xs font-medium text-slate-500" id="mfa_enabled">Multi-Factor Auth (MFA)</div>
+        <div class="md:col-span-3 text-xs font-semibold text-slate-900">
+          <% mfa_enabled = page.resource.mfa_enabled? %>
+          <span class="<%= mfa_enabled ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600' %> inline-flex items-center px-2 py-0.5 rounded text-xxs font-semibold">
+            <%= mfa_enabled ? 'Enabled' : 'Disabled' %>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">
+      Workspace Memberships & Roles
+    </h2>
+    <%= render 'super_admin/shared/account_user_form', page: page, namespace: namespace, resource_type: 'user' %>
+  </div>
+
+  <%= render partial: "impersonate", locals: { page: page } %>
 </section>
-
-<%= render 'super_admin/shared/account_user_form', page: page, namespace: namespace, resource_type: 'user' %>
-
-<%= render partial: "impersonate", locals: {page: page} %>

@@ -12,6 +12,12 @@ class Agents extends ApiClient {
       emails,
     });
   }
+
+  resetPassword(agentId, data) {
+    return axios.post(`${this.url}/${agentId}/reset_password`, {
+      agent: data,
+    });
+  }
 }
 
 export default new Agents();

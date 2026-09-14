@@ -13,7 +13,9 @@ import wootConstants from 'dashboard/constants/globals';
 import { conversationListPageURL } from 'dashboard/helper/URLHelper';
 import { snoozedReopenTime } from 'dashboard/helper/snoozeHelpers';
 import { useInbox } from 'dashboard/composables/useInbox';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useAlert } from 'dashboard/composables';
+import Button from 'dashboard/components-next/button/Button.vue';
 import { useI18n } from 'vue-i18n';
 import { copyTextToClipboard } from 'shared/helpers/clipboard';
 
@@ -31,9 +33,21 @@ const props = defineProps({
 const { t } = useI18n();
 const store = useStore();
 const route = useRoute();
+const { uiSettings, updateUISettings } = useUISettings();
 const conversationHeader = ref(null);
 const { width } = useElementSize(conversationHeader);
 const { isAWebWidgetInbox } = useInbox();
+
+const isSidebarOpen = computed(
+  () => !!uiSettings.value?.is_contact_sidebar_open
+);
+
+const toggleCustomerDetails = () => {
+  updateUISettings({
+    is_contact_sidebar_open: !isSidebarOpen.value,
+    is_copilot_panel_open: false,
+  });
+};
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
@@ -110,7 +124,7 @@ const copyConversationId = async () => {
 <template>
   <div
     ref="conversationHeader"
-    class="flex flex-col gap-3 items-center justify-between flex-1 w-full min-w-0 xl:flex-row px-3 pt-3 pb-2 h-24 xl:h-12"
+    class="flex flex-col gap-3 items-center justify-between flex-1 w-full min-w-0 xl:flex-row px-4 pt-3 pb-3 min-h-[4.5rem] border-b border-slate-800/60 bg-slate-900/90"
   >
     <div
       class="flex items-center justify-start w-full xl:w-auto max-w-full min-w-0 xl:flex-1"
@@ -130,16 +144,14 @@ const copyConversationId = async () => {
       <div class="flex flex-col items-start min-w-0 ms-2 overflow-hidden">
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
           <span
-            class="text-sm font-medium truncate leading-tight text-n-slate-12"
+            class="text-base font-semibold truncate leading-tight text-n-slate-12"
           >
             {{ currentContact.name }}
           </span>
-          <fluent-icon
+          <span
             v-if="!isHMACVerified"
             v-tooltip="$t('CONVERSATION.UNVERIFIED_SESSION')"
-            size="14"
-            class="text-n-amber-10 my-0 mx-0 min-w-[14px] flex-shrink-0"
-            icon="warning"
+            class="i-lucide-alert-triangle size-3.5 text-amber-500 my-0 mx-0 shrink-0"
           />
         </div>
 
@@ -153,6 +165,12 @@ const copyConversationId = async () => {
           >
             {{ `#${chat.id}` }}
           </button>
+          <span>•</span>
+          <span class="capitalize">{{ currentChat.status }}</span>
+          <span v-if="currentChat.priority">•</span>
+          <span v-if="currentChat.priority" class="capitalize text-n-amber-10">
+            {{ currentChat.priority }}
+          </span>
           <span v-if="hasMultipleInboxes">•</span>
           <InboxName v-if="hasMultipleInboxes" :inbox="inbox" class="!mx-0" />
           <span v-if="isSnoozed">•</span>
@@ -173,6 +191,16 @@ const copyConversationId = async () => {
         class="hidden md:flex"
       />
       <ConversationCallButton :inbox="inbox" :chat="currentChat" />
+      <Button
+        id="conversation-details-toggle"
+        v-tooltip="$t('CONVERSATION.HEADER.CUSTOMER_DETAILS')"
+        ghost
+        slate
+        size="sm"
+        :icon="isSidebarOpen ? 'i-lucide-panel-right-close' : 'i-lucide-info'"
+        :class="{ '!bg-slate-800 !text-emerald-400': isSidebarOpen }"
+        @click="toggleCustomerDetails"
+      />
       <MoreActions :conversation-id="currentChat.id" />
     </div>
   </div>

@@ -22,6 +22,11 @@ const typeMap = {
     apiMethod: 'getLabelReports',
     mutationKey: 'setLabelSummaryReport',
   },
+  channel: {
+    flagKey: 'isFetchingChannelSummaryReports',
+    apiMethod: 'getChannelReports',
+    mutationKey: 'setChannelSummaryReport',
+  },
 };
 
 async function fetchSummaryReports(type, params, { commit }) {
@@ -46,11 +51,13 @@ export const initialState = {
   agentSummaryReports: [],
   teamSummaryReports: [],
   labelSummaryReports: [],
+  channelSummaryReports: {},
   uiFlags: {
     isFetchingInboxSummaryReports: false,
     isFetchingAgentSummaryReports: false,
     isFetchingTeamSummaryReports: false,
     isFetchingLabelSummaryReports: false,
+    isFetchingChannelSummaryReports: false,
   },
 };
 
@@ -66,6 +73,9 @@ export const getters = {
   },
   getLabelSummaryReports(state) {
     return state.labelSummaryReports;
+  },
+  getChannelSummaryReports(state) {
+    return state.channelSummaryReports;
   },
   getUIFlags(state) {
     return state.uiFlags;
@@ -88,6 +98,10 @@ export const actions = {
   fetchLabelSummaryReports({ commit }, params) {
     return fetchSummaryReports('label', params, { commit });
   },
+
+  fetchChannelSummaryReports({ commit }, params) {
+    return fetchSummaryReports('channel', params, { commit });
+  },
 };
 
 export const mutations = {
@@ -102,6 +116,9 @@ export const mutations = {
   },
   setLabelSummaryReport(state, data) {
     state.labelSummaryReports = data;
+  },
+  setChannelSummaryReport(state, data) {
+    state.channelSummaryReports = data;
   },
   setUIFlags(state, uiFlag) {
     state.uiFlags = { ...state.uiFlags, ...uiFlag };

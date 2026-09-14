@@ -68,17 +68,23 @@ RSpec.describe V2::Reports::TeamSummaryBuilder do
                 id: team1.id,
                 conversations_count: 1,
                 resolved_conversations_count: 0,
+                backlog_count: 1,
                 avg_resolution_time: nil,
                 avg_first_response_time: 20.0,
-                avg_reply_time: 35.0
+                avg_reply_time: 35.0,
+                reopen_rate: 0.0,
+                csat_score: nil
               },
               {
                 id: team2.id,
                 conversations_count: 1,
                 resolved_conversations_count: 1,
+                backlog_count: 1,
                 avg_resolution_time: 50.0,
                 avg_first_response_time: nil,
-                avg_reply_time: nil
+                avg_reply_time: nil,
+                reopen_rate: 0.0,
+                csat_score: nil
               }
             ]
           )
@@ -97,17 +103,23 @@ RSpec.describe V2::Reports::TeamSummaryBuilder do
                 id: team1.id,
                 conversations_count: 1,
                 resolved_conversations_count: 0,
+                backlog_count: 1,
                 avg_resolution_time: nil,
                 avg_first_response_time: 10.0,
-                avg_reply_time: 20.0
+                avg_reply_time: 20.0,
+                reopen_rate: 0.0,
+                csat_score: nil
               },
               {
                 id: team2.id,
                 conversations_count: 1,
                 resolved_conversations_count: 1,
+                backlog_count: 1,
                 avg_resolution_time: 40.0,
                 avg_first_response_time: nil,
-                avg_reply_time: nil
+                avg_reply_time: nil,
+                reopen_rate: 0.0,
+                csat_score: nil
               }
             ]
           )
@@ -127,9 +139,12 @@ RSpec.describe V2::Reports::TeamSummaryBuilder do
             id: new_team.id,
             conversations_count: 0,
             resolved_conversations_count: 0,
+            backlog_count: 0,
             avg_resolution_time: nil,
             avg_first_response_time: nil,
-            avg_reply_time: nil
+            avg_reply_time: nil,
+            reopen_rate: 0.0,
+            csat_score: nil
           }
         )
       end

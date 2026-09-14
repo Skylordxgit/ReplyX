@@ -36,6 +36,9 @@ class Api::V2::Accounts::SummaryReportsController < Api::V1::Accounts::BaseContr
       until: permitted_params[:until],
       business_hours: ActiveModel::Type::Boolean.new.cast(permitted_params[:business_hours])
     }
+    %i[team_id user_id inbox_id channel_type status priority].each do |key|
+      @builder_params[key] = permitted_params[key] if permitted_params[key].present?
+    end
   end
 
   def render_report_with(builder_class, type: nil)
@@ -45,7 +48,7 @@ class Api::V2::Accounts::SummaryReportsController < Api::V1::Accounts::BaseContr
   end
 
   def permitted_params
-    params.permit(:since, :until, :business_hours)
+    params.permit(:since, :until, :business_hours, :team_id, :user_id, :inbox_id, :channel_type, :status, :priority)
   end
 
   def date_range_too_long?

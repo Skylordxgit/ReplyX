@@ -17,7 +17,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['toggle', 'edit', 'delete', 'clone']);
+const emit = defineEmits(['toggle', 'edit', 'delete', 'clone', 'simulate']);
 
 const readableDate = date => messageStamp(new Date(date), 'LLL d, yyyy');
 const readableDateWithTime = date =>
@@ -72,7 +72,17 @@ const automationActive = computed({
       </BaseTableCell>
 
       <BaseTableCell align="end">
-        <div class="flex gap-3 justify-end flex-shrink-0">
+        <div class="flex gap-2 justify-end flex-shrink-0">
+          <Button
+            v-tooltip.top="
+              $t('AUTOMATION.SIMULATE.BUTTON_TOOLTIP') ||
+              'Simulate / Test Workflow'
+            "
+            icon="i-lucide-play"
+            slate
+            sm
+            @click="$emit('simulate', automation)"
+          />
           <Button
             v-tooltip.top="$t('AUTOMATION.FORM.EDIT')"
             icon="i-woot-edit-pen"

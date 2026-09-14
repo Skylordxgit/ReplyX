@@ -74,8 +74,15 @@ en:
       cannot_revoke_current: You cannot revoke the current session.
 
   errors:
+    agents:
+      password_required: Password is required
+    account_user:
+      last_admin_removal: Cannot remove the last administrator of the workspace
+      last_admin_demotion: Cannot demote the last administrator of the workspace
+      last_admin_deactivation: Cannot deactivate the last administrator of the workspace
     account:
       not_authorized: You are not authorized to access this account
+      deactivated: Your account access has been deactivated
       email_limit_exceeded: The daily email limit for this account has been reached
       reporting_timezone:
         invalid: is not a valid timezone
@@ -239,11 +246,45 @@ en:
     utc_warning: The report generated is in UTC timezone
     agent_csv:
       agent_name: Agent name
-      conversations_count: Assigned conversations
+      conversations_count: Chats assigned
+      replied_count: Chats replied
+      open_count: Open
+      pending_count: Pending
+      closed_count: Closed
+      reopened_count: Reopened
       avg_first_response_time: Avg first response time
       avg_resolution_time: Avg resolution time
       resolution_count: Resolution Count
+      current_workload: Current Workload
+      messages_sent: Messages sent
+      internal_notes: Internal notes
+      transfers: Transfers
+      reassignments: Reassignments
+      active_hours: Active hours
+      chats_per_active_hour: Chats per active hour
+      closed_chats_per_active_hour: Closed chats per active hour
+      positive_ratings: Positive ratings
+      negative_ratings: Negative ratings
+      reopen_rate: Reopen rate
+      fcr_rate: First contact resolution
+      sla_met: SLA met
+      sla_missed: SLA missed
+      first_customer_response_time: First customer response time
+      assignment_first_response_time: Assignment first response time
+      response_time: Customer wait time
+      resolution_time: Resolution time
+      chat_duration: Chat duration
+      avg_handling_time: Avg handling time
+      active_handling_time: Active reply handling time
+      active_reply_handling_time: Active reply handling time
+      customer_wait_time: Customer wait time
+      queue_waiting_time: Queue waiting time
+      aggregates:
+        average: Avg
+        median: Median
+        p90: P90
       avg_customer_waiting_time: Avg customer waiting time
+      csat: CSAT Score
     inbox_csv:
       inbox_name: Inbox name
       inbox_type: Inbox type
@@ -259,11 +300,14 @@ en:
       resolution_count: Resolution Count
     team_csv:
       team_name: Team name
-      conversations_count: Conversations count
+      conversations_count: Handled conversations
       avg_first_response_time: Avg first response time
       avg_resolution_time: Avg resolution time
       resolution_count: Resolution Count
+      backlog_count: Backlog
       avg_customer_waiting_time: Avg customer waiting time
+      reopen_rate: Reopen Rate
+      csat: CSAT Score
     conversation_csv:
       conversations_count: Conversations
       incoming_messages_count: Messages received

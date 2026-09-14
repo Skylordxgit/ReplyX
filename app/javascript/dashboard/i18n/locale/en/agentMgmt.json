@@ -40,7 +40,26 @@
           "LABEL": "Email Address",
           "PLACEHOLDER": "Please enter an email address of the agent"
         },
-        "SUBMIT": "Add Agent"
+        "SUBMIT": "Add Agent",
+        "PASSWORD": {
+          "LABEL": "Temporary Password (Optional)",
+          "PLACEHOLDER": "Set temporary password for agent"
+        },
+        "CONFIRM_PASSWORD": {
+          "LABEL": "Confirm Password",
+          "PLACEHOLDER": "Confirm temporary password"
+        },
+        "FORCE_PASSWORD_CHANGE": {
+          "LABEL": "Force password change on first login"
+        }
+      },
+      "PASSWORD_RULES": {
+        "LENGTH": "At least 6 characters",
+        "UPPERCASE": "At least 1 uppercase letter",
+        "LOWERCASE": "At least 1 lowercase letter",
+        "NUMBER": "At least 1 number",
+        "SPECIAL": "At least 1 special character (!@#$%^&*...)",
+        "MATCH": "Passwords match"
       },
       "API": {
         "SUCCESS_MESSAGE": "Agent added successfully",
@@ -96,6 +115,45 @@
         "SUCCESS_MESSAGE": "Agent password reset successfully",
         "ERROR_MESSAGE": "Could not connect to Woot Server, Please try again later"
       }
+    },
+    "RESET_PASSWORD": {
+      "BUTTON_TEXT": "Reset Password",
+      "TITLE": "Reset Password - {name}",
+      "DESC": "Set a new temporary password for this agent. Existing sessions will be invalidated.",
+      "NEW_PASSWORD": {
+        "LABEL": "New Temporary Password",
+        "PLACEHOLDER": "Enter new temporary password"
+      },
+      "CONFIRM_PASSWORD": {
+        "LABEL": "Confirm Password",
+        "PLACEHOLDER": "Confirm new password"
+      },
+      "FORCE_NEXT_LOGIN": "Force password change on next login",
+      "SUBMIT_BUTTON": "Reset Password",
+      "RULES": {
+        "LENGTH": "At least 6 characters",
+        "UPPERCASE": "At least 1 uppercase letter",
+        "LOWERCASE": "At least 1 lowercase letter",
+        "NUMBER": "At least 1 number",
+        "SPECIAL": "At least 1 special character (!@#$%^&*...)",
+        "MATCH": "Passwords match"
+      },
+      "API": {
+        "SUCCESS_MESSAGE": "Password has been reset successfully. The agent will be prompted to change it on next login.",
+        "ERROR_MESSAGE": "Could not reset password. Please try again."
+      }
+    },
+    "DEACTIVATE": {
+      "BUTTON_TEXT": "Deactivate Agent",
+      "SUCCESS_MESSAGE": "Agent deactivated successfully"
+    },
+    "REACTIVATE": {
+      "BUTTON_TEXT": "Reactivate Agent",
+      "SUCCESS_MESSAGE": "Agent reactivated successfully"
+    },
+    "STATUS": {
+      "DEACTIVATED": "Deactivated",
+      "PASSWORD_CHANGE_REQUIRED": "Password Reset Required"
     },
     "SEARCH_PLACEHOLDER": "Search agents...",
     "NO_RESULTS": "No agents found matching your search",

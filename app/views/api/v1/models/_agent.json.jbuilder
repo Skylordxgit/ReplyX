@@ -4,6 +4,8 @@ json.account_id Current.account&.id
 json.availability_status resource.availability_status
 json.auto_offline resource.auto_offline
 json.confirmed resource.confirmed?
+json.force_password_change resource.force_password_change?
+json.active resource.current_account_user&.active
 json.email resource.email
 json.provider resource.provider
 json.available_name resource.available_name

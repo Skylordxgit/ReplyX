@@ -82,6 +82,18 @@ export const actions = {
   updatePresence: async ({ commit }, data) => {
     commit(types.default.UPDATE_AGENTS_PRESENCE, data);
   },
+  resetPassword: async ({ commit }, { id, ...data }) => {
+    commit(types.default.SET_AGENT_UPDATING_STATUS, true);
+    try {
+      const response = await AgentAPI.resetPassword(id, data);
+      commit(types.default.EDIT_AGENT, response.data);
+      commit(types.default.SET_AGENT_UPDATING_STATUS, false);
+      return response.data;
+    } catch (error) {
+      commit(types.default.SET_AGENT_UPDATING_STATUS, false);
+      throw error;
+    }
+  },
   delete: async ({ commit }, agentId) => {
     commit(types.default.SET_AGENT_DELETING_STATUS, true);
     try {

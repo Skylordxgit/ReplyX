@@ -21,6 +21,7 @@ import {
 } from './helper/pushHelper';
 import ReconnectService from 'dashboard/helper/ReconnectService';
 import { useUISettings } from 'dashboard/composables/useUISettings';
+import { getPlatformBranding } from 'dashboard/branding/limcxBranding';
 
 export default {
   name: 'App',
@@ -70,6 +71,31 @@ export default {
   },
 
   watch: {
+    uiSettings: {
+      immediate: true,
+      deep: true,
+      handler(settings = {}) {
+        const branding = getPlatformBranding(settings);
+        document.title = branding.appName;
+        document.documentElement.style.setProperty(
+          '--limcx-primary',
+          branding.primaryColor
+        );
+        document.documentElement.style.setProperty(
+          '--limcx-cyan',
+          branding.accentColor
+        );
+
+        if (branding.favicon) {
+          const link =
+            document.querySelector("link[rel~='icon']") ||
+            document.createElement('link');
+          link.rel = 'icon';
+          link.href = branding.favicon;
+          document.head.appendChild(link);
+        }
+      },
+    },
     currentAccountId: {
       immediate: true,
       handler() {

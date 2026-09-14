@@ -140,7 +140,60 @@ class User < ApplicationRecord
   end
 
   def serializable_hash(options = nil)
-    super(options).merge(confirmed: confirmed?)
+    super(options).merge(confirmed: confirmed?, force_password_change: force_password_change?)
+  end
+
+  def admin_reset_password!(password:, password_confirmation:, force_password_change: true, account: nil, actor: nil)
+    self.password = password
+    self.password_confirmation = password_confirmation
+    self.force_password_change = force_password_change
+    self.confirmed_at ||= Time.current
+    self.tokens = {}
+    save!
+    user_sessions.destroy_all
+    record_password_reset_audit(account: account, actor: actor, forced: force_password_change)
+  end
+
+  def record_password_reset_audit(account:, actor:, forced:)
+    return unless audit_enabled?
+
+    audit_actor = actor || Current.user
+    write_audit_entry(
+      associated: account || Current.account,
+      user: audit_actor,
+      action: 'password_reset',
+      changes: { 'force_password_change' => [!forced, forced], 'session_revoked' => [false, true] },
+      comment: "Password reset by #{audit_actor&.email || 'administrator'} (force_password_change: #{forced})"
+    )
+  end
+
+  def record_password_change_audit(account:, actor:)
+    return unless audit_enabled?
+
+    write_audit_entry(
+      associated: account || Current.account,
+      user: actor || self,
+      action: 'password_change',
+      changes: { 'force_password_change' => [true, false] },
+      comment: 'Password changed by user'
+    )
+  end
+
+  def audit_enabled?
+    defined?(Audited) && Audited.audit_class.present?
+  end
+
+  def write_audit_entry(associated:, user:, action:, changes:, comment:)
+    Audited.audit_class.create(
+      auditable: self,
+      associated: associated,
+      user: user,
+      action: action,
+      audited_changes: changes,
+      comment: comment
+    )
+  rescue StandardError => e
+    Rails.logger.warn "Failed to create audit log for #{action}: #{e.message}"
   end
 
   def push_event_data

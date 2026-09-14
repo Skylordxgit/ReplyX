@@ -7,7 +7,8 @@ export const hasPermissions = (
   );
 };
 
-export const getCurrentAccount = ({ accounts } = {}, accountId = null) => {
+export const getCurrentAccount = ({ accounts = [] } = {}, accountId = null) => {
+  if (!Array.isArray(accounts)) return undefined;
   return accounts.find(account => Number(account.id) === Number(accountId));
 };
 
@@ -23,6 +24,24 @@ export const getUserRole = (user, accountId) => {
   }
 
   return currentAccount.role || 'agent';
+};
+
+export const isMasterAdmin = user => {
+  return user?.type === 'SuperAdmin';
+};
+
+export const isWorkspaceAdmin = (user, accountId) => {
+  if (isMasterAdmin(user)) return true;
+  return getUserRole(user, accountId) === 'administrator';
+};
+
+export const isTeamLead = (user, accountId) => {
+  const role = getUserRole(user, accountId);
+  return role === 'team_lead' || role === 'custom_role';
+};
+
+export const isAgent = (user, accountId) => {
+  return getUserRole(user, accountId) === 'agent';
 };
 
 /**

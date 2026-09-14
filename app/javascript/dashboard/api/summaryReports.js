@@ -45,6 +45,16 @@ class SummaryReportsAPI extends ApiClient {
       },
     });
   }
+
+  getChannelReports({ since, until, businessHours } = {}) {
+    return axios.get(`${this.url}/channel`, {
+      params: {
+        since,
+        until,
+        business_hours: businessHours,
+      },
+    });
+  }
 }
 
 export default new SummaryReportsAPI();

@@ -44,6 +44,9 @@ export const getLoginRedirectURL = ({
 }) => {
   const accountPath = getSSOAccountPath({ ssoAccountId, user });
   if (accountPath) {
+    if (user?.force_password_change) {
+      return frontendURL(`${accountPath}/change-password`);
+    }
     if (ssoConversationId) {
       return frontendURL(`${accountPath}/conversations/${ssoConversationId}`);
     }

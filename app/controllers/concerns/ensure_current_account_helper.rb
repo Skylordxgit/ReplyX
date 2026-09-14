@@ -24,6 +24,9 @@ module EnsureCurrentAccountHelper
     @current_account_user = account.account_users.find_by(user_id: current_user.id)
     Current.account_user = @current_account_user
     render_unauthorized(I18n.t('errors.account.not_authorized')) unless @current_account_user
+    return if @current_account_user.blank? || @current_account_user.active?
+
+    render_unauthorized(I18n.t('errors.account.deactivated', default: 'Account user is deactivated'))
   end
 
   def account_accessible_for_bot?(account)

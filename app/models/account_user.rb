@@ -34,8 +34,14 @@ class AccountUser < ApplicationRecord
   enum role: { agent: 0, administrator: 1 }
   enum availability: { online: 0, offline: 1, busy: 2 }
 
+  scope :active, -> { where(active: true) }
+  scope :inactive, -> { where(active: false) }
+
   accepts_nested_attributes_for :account
 
+  before_update :prevent_last_admin_demotion
+  before_update :prevent_last_admin_deactivation
+  before_destroy :prevent_last_admin_removal, prepend: true
   after_create_commit :notify_creation, :create_notification_setting
   after_destroy :notify_deletion, :remove_user_from_account
   after_save :update_presence_in_redis, if: :saved_change_to_availability?
@@ -56,6 +62,8 @@ class AccountUser < ApplicationRecord
   end
 
   def permissions
+    return [] unless active?
+
     administrator? ? ['administrator'] : ['agent']
   end
 
@@ -64,11 +72,52 @@ class AccountUser < ApplicationRecord
       id: id,
       availability: availability,
       role: role,
-      user_id: user_id
+      user_id: user_id,
+      active: active
     }
   end
 
   private
+
+  def prevent_last_admin_removal
+    return unless administrator?
+    return if account_being_destroyed?
+    return if other_administrators?
+
+    errors.add(:base, I18n.t('errors.account_user.last_admin_removal', default: 'Cannot remove the last administrator of the workspace'))
+    throw(:abort)
+  end
+
+  def prevent_last_admin_demotion
+    return unless demoting_from_administrator?
+    return if account_being_destroyed?
+    return if other_administrators?
+
+    errors.add(:base, I18n.t('errors.account_user.last_admin_demotion', default: 'Cannot demote the last administrator of the workspace'))
+    throw(:abort)
+  end
+
+  def prevent_last_admin_deactivation
+    return unless administrator?
+    return unless active_changed? && !active?
+    return if account_being_destroyed?
+    return if other_administrators?
+
+    errors.add(:base, I18n.t('errors.account_user.last_admin_deactivation', default: 'Cannot deactivate the last administrator of the workspace'))
+    throw(:abort)
+  end
+
+  def demoting_from_administrator?
+    role_changed? && role_was == 'administrator' && agent?
+  end
+
+  def account_being_destroyed?
+    account.blank? || account.destroyed? || account.marked_for_destruction?
+  end
+
+  def other_administrators?
+    account.account_users.administrator.where.not(id: id).exists?
+  end
 
   def notify_creation
     Rails.configuration.dispatcher.dispatch(AGENT_ADDED, Time.zone.now, account: account)

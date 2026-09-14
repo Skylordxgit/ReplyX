@@ -1,0 +1,111 @@
+:root {
+  --limcx-bg: #070b14;
+  --limcx-sidebar: #0b1220;
+  --limcx-surface: #101827;
+  --limcx-elevated: #141e30;
+  --limcx-primary: #1677ff;
+  --limcx-primary-hover: #4096ff;
+  --limcx-cyan: #22d3ee;
+  --limcx-purple: #7c5cfc;
+  --limcx-success: #22c55e;
+  --limcx-warning: #f59e0b;
+  --limcx-danger: #ef4444;
+  --limcx-text: #f8fafc;
+  --limcx-text-muted: #94a3b8;
+  --limcx-border: rgba(255, 255, 255, 0.07);
+  --limcx-radius-sm: 6px;
+  --limcx-radius: 8px;
+  --limcx-density-control: 2.5rem;
+  --limcx-density-gap: 0.75rem;
+  --limcx-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-limcx-theme='light'] {
+  --limcx-bg: #f5f7fb;
+  --limcx-sidebar: #ffffff;
+  --limcx-surface: #ffffff;
+  --limcx-elevated: #eef3fb;
+  --limcx-text: #0f172a;
+  --limcx-text-muted: #64748b;
+  --limcx-border: rgba(15, 23, 42, 0.1);
+  --limcx-shadow: 0 22px 55px rgba(15, 23, 42, 0.12);
+}
+
+:root[data-limcx-density='compact'] {
+  --limcx-density-control: 2.125rem;
+  --limcx-density-gap: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.limcx-shell {
+  background: var(--limcx-bg);
+  color: var(--limcx-text);
+}
+
+.limcx-panel {
+  background: var(--limcx-surface);
+  border-color: var(--limcx-border);
+}
+
+.limcx-elevated {
+  background: var(--limcx-elevated);
+  border-color: var(--limcx-border);
+  box-shadow: var(--limcx-shadow);
+}
+
+.limcx-conversation-view {
+  background: radial-gradient(
+      circle at top left,
+      rgba(34, 211, 238, 0.08),
+      transparent 28rem
+    ),
+    var(--limcx-bg);
+}
+
+.limcx-conversation-list {
+  background: var(--limcx-surface) !important;
+  border-right: 1px solid var(--limcx-border);
+}
+
+.limcx-chat-pane {
+  background: var(--limcx-bg) !important;
+}
+
+.limcx-context-panel {
+  background: var(--limcx-surface) !important;
+  border-color: var(--limcx-border) !important;
+}
+
+.limcx-border {
+  border-color: var(--limcx-border) !important;
+}
+
+.limcx-input-surface {
+  background: var(--limcx-elevated) !important;
+  border-color: var(--limcx-border) !important;
+}
+
+.limcx-header-surface {
+  background: color-mix(in srgb, var(--limcx-surface) 88%, white) !important;
+  border-color: var(--limcx-border) !important;
+}
+
+.limcx-conversation-card {
+  background: transparent;
+  border-color: var(--limcx-border) !important;
+}
+
+.limcx-conversation-card:hover,
+.limcx-conversation-card.active {
+  background: rgba(22, 119, 255, 0.1) !important;
+}

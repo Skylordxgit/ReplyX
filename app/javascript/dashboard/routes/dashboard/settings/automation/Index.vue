@@ -2,6 +2,7 @@
 import { useAlert } from 'dashboard/composables';
 import AddAutomationRule from './AddAutomationRule.vue';
 import EditAutomationRule from './EditAutomationRule.vue';
+import AutomationSimulationModal from './AutomationSimulationModal.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -28,7 +29,9 @@ const loading = ref({});
 const addDialogRef = ref(null);
 const editDialogRef = ref(null);
 const showDeleteConfirmationPopup = ref(false);
+const showSimulationModal = ref(false);
 const selectedAutomation = ref({});
+const simulationAutomation = ref(null);
 const searchQuery = ref('');
 const toggleModalTitle = ref(t('AUTOMATION.TOGGLE.ACTIVATION_TITLE'));
 const toggleModalDescription = ref(
@@ -169,6 +172,11 @@ const openEditPopup = async response => {
 };
 const hideEditPopup = () => {
   editDialogRef.value?.close();
+};
+
+const openSimulationModal = automation => {
+  simulationAutomation.value = automation;
+  showSimulationModal.value = true;
 };
 
 const openDeletePopup = response => {
@@ -331,6 +339,7 @@ const tableHeaders = computed(() => {
             @toggle="toggleAutomation"
             @edit="openEditPopup"
             @delete="openDeletePopup"
+            @simulate="openSimulationModal"
           />
         </template>
       </BaseTable>
@@ -353,6 +362,11 @@ const tableHeaders = computed(() => {
       ref="editDialogRef"
       :selected-response="selectedAutomation"
       @save-automation="submitAutomation"
+    />
+    <AutomationSimulationModal
+      v-if="showSimulationModal"
+      :automation="simulationAutomation"
+      @close="showSimulationModal = false"
     />
     <woot-confirm-modal
       ref="confirmDialog"

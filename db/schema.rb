@@ -52,6 +52,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_000000) do
     t.boolean "auto_offline", default: true, null: false
     t.bigint "custom_role_id"
     t.bigint "agent_capacity_policy_id"
+    t.boolean "active", default: true, null: false
+    t.index ["account_id", "active"], name: "index_account_users_on_account_id_and_active"
     t.index ["account_id", "user_id"], name: "uniq_user_id_per_account_id", unique: true
     t.index ["account_id"], name: "index_account_users_on_account_id"
     t.index ["agent_capacity_policy_id"], name: "index_account_users_on_agent_capacity_policy_id"
@@ -1559,6 +1561,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_000000) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login", default: false
     t.text "otp_backup_codes"
+    t.boolean "force_password_change", default: false, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["otp_required_for_login"], name: "index_users_on_otp_required_for_login"
     t.index ["otp_secret"], name: "index_users_on_otp_secret", unique: true

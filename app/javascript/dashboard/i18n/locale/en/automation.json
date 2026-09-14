@@ -233,6 +233,48 @@
       "TEAM_NAME": "Team",
       "PRIORITY": "Priority",
       "LABELS": "Labels"
+    },
+    "SIMULATION": {
+      "TITLE": "Simulate Workflow: {name}",
+      "FALLBACK_NAME": "Automation Rule",
+      "DESCRIPTION": "Evaluate this rule's conditions against sample input. Customer-facing actions are never executed.",
+      "INPUTS": "Test Inputs",
+      "STATUS": "Status",
+      "STATUS_OPTIONS": {
+        "OPEN": "Open",
+        "PENDING": "Pending",
+        "SNOOZED": "Snoozed",
+        "RESOLVED": "Resolved"
+      },
+      "PRIORITY": "Priority",
+      "PRIORITY_OPTIONS": {
+        "URGENT": "Urgent",
+        "HIGH": "High",
+        "MEDIUM": "Medium",
+        "LOW": "Low"
+      },
+      "SAMPLE_MESSAGE": "Sample inbound message",
+      "SAMPLE_PLACEHOLDER": "Type a message to test content conditions...",
+      "RUN": "Run Simulation",
+      "TRACE_TITLE": "Execution Trace",
+      "RESULT_MATCH": "Rule matched",
+      "RESULT_NO_MATCH": "Rule did not match",
+      "TRACE": {
+        "TRIGGER": "Trigger evaluated",
+        "CONDITION": "Condition #{index}: {description}",
+        "CONDITION_MATCH": "Matched the simulated conversation.",
+        "CONDITION_NO_MATCH": "Did not match the simulated conversation.",
+        "UNSUPPORTED_OPERATOR": "This operator cannot be evaluated in a simulation.",
+        "SUMMARY": "Condition group evaluation",
+        "SUMMARY_MATCH": "{matched} of {total} condition(s) matched.",
+        "SUMMARY_NO_MATCH": "Only {matched} of {total} condition(s) matched, so the rule would not run.",
+        "ACTION": "Action #{index}: {name}",
+        "ACTION_DRY_RUN": "Dry run only. No data was changed.",
+        "ACTION_SUPPRESSED": "Customer-facing action suppressed. Nothing was sent.",
+        "SKIPPED_ACTIONS": "Actions were skipped because the conditions did not match.",
+        "COMPLETE": "Simulation complete",
+        "COMPLETE_DETAIL": "Simulated {count} action(s) with no external side effects."
+      }
     }
   }
 }

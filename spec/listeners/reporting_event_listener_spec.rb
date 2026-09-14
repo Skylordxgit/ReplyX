@@ -309,6 +309,63 @@ describe ReportingEventListener do
     end
   end
 
+  describe '#assignee_changed' do
+    let(:assigned_events) { account.reporting_events.where(name: 'conversation_assigned') }
+
+    it 'creates a conversation_assigned event for the current assignee' do
+      assigned_at = Time.zone.now
+      event = Events::Base.new('assignee.changed', assigned_at, conversation: conversation)
+
+      expect { listener.assignee_changed(event) }.to change(assigned_events, :count).by(1)
+
+      reporting_event = assigned_events.last
+      expect(reporting_event.user_id).to eq user.id
+      expect(reporting_event.conversation_id).to eq conversation.id
+      expect(reporting_event.event_end_time).to be_within(1.second).of(assigned_at)
+    end
+
+    it 'does not create an event when the conversation is unassigned' do
+      unassigned = create(:conversation, account: account, inbox: inbox, assignee: nil)
+      event = Events::Base.new('assignee.changed', Time.zone.now, conversation: unassigned)
+
+      expect { listener.assignee_changed(event) }.not_to change(assigned_events, :count)
+    end
+
+    it 'records one event per agent when a conversation is reassigned' do
+      listener.assignee_changed(Events::Base.new('assignee.changed', Time.zone.now, conversation: conversation))
+
+      new_assignee = create(:user, account: account, role: :agent)
+      conversation.update!(assignee: new_assignee)
+      event = Events::Base.new(
+        'assignee.changed',
+        Time.zone.now,
+        conversation: conversation,
+        changed_attributes: { assignee_id: [user.id, new_assignee.id] }
+      )
+      listener.assignee_changed(event)
+
+      expect(assigned_events.pluck(:user_id)).to contain_exactly(user.id, new_assignee.id)
+      reassigned = account.reporting_events.where(name: 'conversation_reassigned')
+      expect(reassigned.pluck(:user_id)).to eq([new_assignee.id])
+    end
+  end
+
+  describe '#team_changed' do
+    let(:team) { create(:team, account: account) }
+
+    before do
+      create(:team_member, team: team, user: user)
+    end
+
+    it 'creates a conversation_transferred event' do
+      conversation.update!(team: team)
+      event = Events::Base.new('team.changed', Time.zone.now, conversation: conversation)
+
+      expect { listener.team_changed(event) }
+        .to change { account.reporting_events.where(name: 'conversation_transferred').count }.by(1)
+    end
+  end
+
   describe '#conversation_opened' do
     context 'when conversation is opened for the first time' do
       let(:new_conversation) { create(:conversation, account: account, inbox: inbox, assignee: user) }

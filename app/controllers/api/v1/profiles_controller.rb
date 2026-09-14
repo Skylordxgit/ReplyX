@@ -7,7 +7,10 @@ class Api::V1::ProfilesController < Api::BaseController
     if password_params[:password].present?
       render_could_not_create_error('Invalid current password') and return unless @user.valid_password?(password_params[:current_password])
 
-      @user.update!(password_params.except(:current_password))
+      was_forced = @user.force_password_change?
+      @user.force_password_change = false
+      @user.update!(password_params.except(:current_password).merge(force_password_change: false))
+      @user.record_password_change_audit(account: Current.account, actor: @user) if was_forced
     end
 
     @user.assign_attributes(profile_params)

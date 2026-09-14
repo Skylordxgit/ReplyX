@@ -1,10 +1,11 @@
 <script>
 import { defineAsyncComponent, ref, computed } from 'vue';
 
-import NextSidebar from 'next/sidebar/Sidebar.vue';
 import WootKeyShortcutModal from 'dashboard/components/widgets/modal/WootKeyShortcutModal.vue';
 import AddAccountModal from 'dashboard/components/app/AddAccountModal.vue';
 import UpgradePage from 'dashboard/routes/dashboard/upgrade/UpgradePage.vue';
+import LimCXSidebar from 'dashboard/components/limcx/LimCXSidebar.vue';
+import LimCXTopbar from 'dashboard/components/limcx/LimCXTopbar.vue';
 
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useAccount } from 'dashboard/composables/useAccount';
@@ -24,12 +25,12 @@ const FloatingCallWidget = defineAsyncComponent(
 import CopilotLauncher from 'dashboard/components-next/copilot/CopilotLauncher.vue';
 import CopilotContainer from 'dashboard/components/copilot/CopilotContainer.vue';
 
-import MobileSidebarLauncher from 'dashboard/components-next/sidebar/MobileSidebarLauncher.vue';
 import { useCallsStore } from 'dashboard/stores/calls';
 
 export default {
   components: {
-    NextSidebar,
+    LimCXSidebar,
+    LimCXTopbar,
     CommandBar,
     WootKeyShortcutModal,
     AddAccountModal,
@@ -37,7 +38,6 @@ export default {
     CopilotLauncher,
     CopilotContainer,
     FloatingCallWidget,
-    MobileSidebarLauncher,
   },
   setup() {
     const upgradePageRef = ref(null);
@@ -85,6 +85,16 @@ export default {
     },
   },
   watch: {
+    uiSettings: {
+      handler(settings = {}) {
+        const theme = settings.limcx_theme || 'dark';
+        const density = settings.limcx_density || 'comfortable';
+        document.documentElement.dataset.limcxTheme = theme;
+        document.documentElement.dataset.limcxDensity = density;
+      },
+      immediate: true,
+      deep: true,
+    },
     isSmallScreen: {
       handler() {
         const { LAYOUT_TYPES } = wootConstants;
@@ -129,36 +139,34 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-grow overflow-hidden text-n-slate-12">
-    <NextSidebar
+  <div class="flex flex-grow overflow-hidden text-n-slate-12 limcx-shell">
+    <LimCXSidebar
       :is-mobile-sidebar-open="isMobileSidebarOpen"
       @toggle-account-modal="toggleAccountModal"
       @open-key-shortcut-modal="toggleKeyShortcutModal"
-      @close-key-shortcut-modal="closeKeyShortcutModal"
       @show-create-account-modal="openCreateAccountModal"
       @close-mobile-sidebar="closeMobileSidebar"
     />
 
     <main
-      class="flex flex-1 h-full w-full min-h-0 px-0 overflow-hidden bg-n-surface-1"
+      class="flex flex-col flex-1 h-full w-full min-h-0 px-0 overflow-hidden"
     >
+      <LimCXTopbar
+        @toggle-mobile-sidebar="toggleMobileSidebar"
+        @open-key-shortcut-modal="toggleKeyShortcutModal"
+        @toggle-account-modal="toggleAccountModal"
+        @show-create-account-modal="openCreateAccountModal"
+      />
       <UpgradePage
         v-show="showUpgradePage"
         ref="upgradePageRef"
         :bypass-upgrade-page="bypassUpgradePage"
-      >
-        <MobileSidebarLauncher
-          :is-mobile-sidebar-open="isMobileSidebarOpen"
-          @toggle="toggleMobileSidebar"
-        />
-      </UpgradePage>
+      />
       <template v-if="!showUpgradePage">
-        <router-view />
+        <div class="flex flex-1 min-h-0 overflow-hidden">
+          <router-view />
+        </div>
         <CopilotLauncher />
-        <MobileSidebarLauncher
-          :is-mobile-sidebar-open="isMobileSidebarOpen"
-          @toggle="toggleMobileSidebar"
-        />
         <CopilotContainer />
         <FloatingCallWidget v-if="hasActiveCall || hasIncomingCall" />
       </template>
