@@ -130,9 +130,28 @@ const confirmDeletion = () => {
   deleteCannedResponse(activeResponse.value.id);
 };
 
+const accessLabel = response => {
+  if (response.access_scope === 'only_me') {
+    return t('CANNED_MGMT.ACCESS.BADGES.PRIVATE');
+  }
+  if (response.access_scope === 'specific_users') {
+    return t('CANNED_MGMT.ACCESS.BADGES.USERS', {
+      n: response.allowed_user_ids.length,
+    });
+  }
+  if (response.access_scope === 'specific_teams') {
+    const teams = response.allowed_teams;
+    return teams.length === 1
+      ? teams[0].name
+      : t('CANNED_MGMT.ACCESS.BADGES.TEAMS', { n: teams.length });
+  }
+  return t('CANNED_MGMT.ACCESS.OPTIONS.EVERYONE');
+};
+
 const tableHeaders = computed(() => {
   return [
     t('CANNED_MGMT.LIST.TABLE_HEADER.SHORT_CODE'),
+    t('CANNED_MGMT.LIST.TABLE_HEADER.ACCESS'),
     t('CANNED_MGMT.LIST.TABLE_HEADER.ACTIONS'),
   ];
 });
@@ -202,6 +221,9 @@ const tableHeaders = computed(() => {
         <template #header-1>
           {{ tableHeaders[1] }}
         </template>
+        <template #header-2>
+          {{ tableHeaders[2] }}
+        </template>
 
         <template #row="{ items }">
           <BaseTableRow
@@ -219,6 +241,14 @@ const tableHeaders = computed(() => {
                     {{ getPlainText(cannedItem.content) }}
                   </p>
                 </div>
+              </BaseTableCell>
+
+              <BaseTableCell class="w-32">
+                <span
+                  class="inline-flex rounded-full bg-n-alpha-2 px-2 py-0.5 text-xs font-medium text-n-slate-11"
+                >
+                  {{ accessLabel(cannedItem) }}
+                </span>
               </BaseTableCell>
 
               <BaseTableCell align="end" class="w-24">
@@ -256,6 +286,9 @@ const tableHeaders = computed(() => {
         :id="activeResponse.id"
         :edshort-code="activeResponse.short_code"
         :edcontent="activeResponse.content"
+        :access-scope="activeResponse.access_scope"
+        :allowed-team-ids="activeResponse.allowed_team_ids"
+        :allowed-user-ids="activeResponse.allowed_user_ids"
         :on-close="hideEditPopup"
       />
     </woot-modal>

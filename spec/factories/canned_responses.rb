@@ -5,5 +5,6 @@ FactoryBot.define do
     content { 'Content' }
     sequence(:short_code) { |n| "CODE#{n}" }
     account
+    access_scope { :everyone }
   end
 end

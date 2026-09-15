@@ -8,3 +8,15 @@ properties:
     type: string
     description: Short Code for quick access of the canned response
     example: 'welcome'
+  access_scope:
+    type: string
+    enum: [everyone, specific_teams, specific_users, only_me]
+    default: everyone
+  allowed_team_ids:
+    type: array
+    items:
+      type: integer
+  allowed_user_ids:
+    type: array
+    items:
+      type: integer

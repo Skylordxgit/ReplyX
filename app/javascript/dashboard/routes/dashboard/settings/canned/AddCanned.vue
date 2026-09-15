@@ -6,6 +6,7 @@ import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Modal from '../../../../components/Modal.vue';
 import WootMessageEditor from 'dashboard/components/widgets/WootWriter/Editor.vue';
+import CannedResponseAccess from './CannedResponseAccess.vue';
 
 export default {
   name: 'AddCanned',
@@ -13,6 +14,7 @@ export default {
     NextButton,
     Modal,
     WootMessageEditor,
+    CannedResponseAccess,
   },
   props: {
     responseContent: {
@@ -31,6 +33,9 @@ export default {
     return {
       shortCode: '',
       content: this.responseContent || '',
+      accessScope: 'everyone',
+      allowedTeamIds: [],
+      allowedUserIds: [],
       addCanned: {
         showLoading: false,
         message: '',
@@ -51,6 +56,9 @@ export default {
     resetForm() {
       this.shortCode = '';
       this.content = '';
+      this.accessScope = 'everyone';
+      this.allowedTeamIds = [];
+      this.allowedUserIds = [];
       this.v$.shortCode.$reset();
       this.v$.content.$reset();
     },
@@ -62,6 +70,9 @@ export default {
         .dispatch('createCannedResponse', {
           short_code: this.shortCode,
           content: this.content,
+          access_scope: this.accessScope,
+          allowed_team_ids: this.allowedTeamIds,
+          allowed_user_ids: this.allowedUserIds,
         })
         .then(() => {
           // Reset Form, Show success message
@@ -118,6 +129,12 @@ export default {
             />
           </div>
         </div>
+
+        <CannedResponseAccess
+          v-model:access-scope="accessScope"
+          v-model:allowed-team-ids="allowedTeamIds"
+          v-model:allowed-user-ids="allowedUserIds"
+        />
         <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
           <NextButton
             faded
@@ -132,6 +149,8 @@ export default {
             :disabled="
               v$.content.$invalid ||
               v$.shortCode.$invalid ||
+              (accessScope === 'specific_teams' && !allowedTeamIds.length) ||
+              (accessScope === 'specific_users' && !allowedUserIds.length) ||
               addCanned.showLoading
             "
             :is-loading="addCanned.showLoading"

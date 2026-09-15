@@ -16,6 +16,7 @@
       "TABLE_HEADER": {
         "SHORT_CODE": "Short code",
         "CONTENT": "Content",
+        "ACCESS": "Accessed by",
         "ACTIONS": "Actions"
       }
     },
@@ -39,6 +40,32 @@
       "API": {
         "SUCCESS_MESSAGE": "Canned response added successfully.",
         "ERROR_MESSAGE": "Could not connect to Woot server. Please try again."
+      }
+    },
+    "ACCESS": {
+      "LABEL": "Accessed by",
+      "OPTIONS": {
+        "EVERYONE": "Everyone",
+        "SPECIFIC_TEAMS": "Specific Teams",
+        "SPECIFIC_USERS": "Specific Users",
+        "ONLY_ME": "Only Me"
+      },
+      "TEAMS": {
+        "LABEL": "Teams",
+        "PLACEHOLDER": "Select teams",
+        "SEARCH": "Search teams",
+        "EMPTY": "No teams found"
+      },
+      "USERS": {
+        "LABEL": "Users",
+        "PLACEHOLDER": "Select users",
+        "SEARCH": "Search users",
+        "EMPTY": "No users found"
+      },
+      "BADGES": {
+        "PRIVATE": "Private",
+        "USERS": "{n} User | {n} Users",
+        "TEAMS": "{n} Team | {n} Teams"
       }
     },
     "EDIT": {

@@ -12,6 +12,21 @@ properties:
   content:
     type: string
     description: Message content for canned response
+  access_scope:
+    type: string
+    enum: [everyone, specific_teams, specific_users, only_me]
+    description: Users who can access the canned response
+  creator_id:
+    type: integer
+    nullable: true
+  allowed_team_ids:
+    type: array
+    items:
+      type: integer
+  allowed_user_ids:
+    type: array
+    items:
+      type: integer
   created_at:
     type: string
     description: The date and time when the canned response was created

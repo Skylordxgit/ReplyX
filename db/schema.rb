@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_31_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_14_110000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -401,12 +401,32 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_000000) do
     t.index ["scheduled_at"], name: "index_campaigns_on_scheduled_at"
   end
 
+  create_table "canned_response_teams", id: false, force: :cascade do |t|
+    t.integer "canned_response_id", null: false
+    t.bigint "team_id", null: false
+    t.index ["canned_response_id", "team_id"], name: "index_canned_response_teams_on_canned_response_id_and_team_id", unique: true
+    t.index ["canned_response_id"], name: "index_canned_response_teams_on_canned_response_id"
+    t.index ["team_id"], name: "index_canned_response_teams_on_team_id"
+  end
+
+  create_table "canned_response_users", id: false, force: :cascade do |t|
+    t.integer "canned_response_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["canned_response_id", "user_id"], name: "index_canned_response_users_on_canned_response_id_and_user_id", unique: true
+    t.index ["canned_response_id"], name: "index_canned_response_users_on_canned_response_id"
+    t.index ["user_id"], name: "index_canned_response_users_on_user_id"
+  end
+
   create_table "canned_responses", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.string "short_code"
     t.text "content"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.integer "access_scope", default: 0, null: false
+    t.bigint "creator_id"
+    t.index ["account_id", "access_scope"], name: "index_canned_responses_on_account_id_and_access_scope"
+    t.index ["creator_id"], name: "index_canned_responses_on_creator_id"
   end
 
   create_table "captain_assistant_responses", force: :cascade do |t|
@@ -1605,6 +1625,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_31_000000) do
   add_foreign_key "campaign_recipients", "campaigns", on_delete: :cascade
   add_foreign_key "campaign_recipients", "contacts", on_delete: :cascade
   add_foreign_key "campaign_recipients", "inboxes", on_delete: :cascade
+  add_foreign_key "canned_response_teams", "canned_responses", on_delete: :cascade
+  add_foreign_key "canned_response_teams", "teams", on_delete: :cascade
+  add_foreign_key "canned_response_users", "canned_responses", on_delete: :cascade
+  add_foreign_key "canned_response_users", "users", on_delete: :cascade
+  add_foreign_key "canned_responses", "users", column: "creator_id", on_delete: :nullify
   add_foreign_key "inboxes", "portals"
   add_foreign_key "user_sessions", "users"
   create_trigger("accounts_after_insert_row_tr", :generated => true, :compatibility => 1).

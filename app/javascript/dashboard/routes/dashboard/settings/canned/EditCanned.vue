@@ -6,17 +6,22 @@ import { useAlert } from 'dashboard/composables';
 import WootMessageEditor from 'dashboard/components/widgets/WootWriter/Editor.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Modal from '../../../../components/Modal.vue';
+import CannedResponseAccess from './CannedResponseAccess.vue';
 
 export default {
   components: {
     NextButton,
     Modal,
     WootMessageEditor,
+    CannedResponseAccess,
   },
   props: {
     id: { type: Number, default: null },
     edcontent: { type: String, default: '' },
     edshortCode: { type: String, default: '' },
+    accessScope: { type: String, default: 'everyone' },
+    allowedTeamIds: { type: Array, default: () => [] },
+    allowedUserIds: { type: Array, default: () => [] },
     onClose: { type: Function, default: () => {} },
   },
   setup() {
@@ -30,6 +35,9 @@ export default {
       },
       shortCode: this.edshortCode,
       content: this.edcontent,
+      selectedAccessScope: this.accessScope,
+      selectedTeamIds: [...this.allowedTeamIds],
+      selectedUserIds: [...this.allowedUserIds],
       show: true,
     };
   },
@@ -67,6 +75,9 @@ export default {
           id: this.id,
           short_code: this.shortCode,
           content: this.content,
+          access_scope: this.selectedAccessScope,
+          allowed_team_ids: this.selectedTeamIds,
+          allowed_user_ids: this.selectedUserIds,
         })
         .then(() => {
           // Reset Form, Show success message
@@ -122,6 +133,12 @@ export default {
             />
           </div>
         </div>
+
+        <CannedResponseAccess
+          v-model:access-scope="selectedAccessScope"
+          v-model:allowed-team-ids="selectedTeamIds"
+          v-model:allowed-user-ids="selectedUserIds"
+        />
         <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
           <NextButton
             faded
@@ -136,6 +153,10 @@ export default {
             :disabled="
               v$.content.$invalid ||
               v$.shortCode.$invalid ||
+              (selectedAccessScope === 'specific_teams' &&
+                !selectedTeamIds.length) ||
+              (selectedAccessScope === 'specific_users' &&
+                !selectedUserIds.length) ||
               editCanned.showLoading
             "
             :is-loading="editCanned.showLoading"
